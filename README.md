@@ -10,22 +10,30 @@ Core service for serverless ML training/serving
 
 ```javascript
     {
-        "data": {
-            "location": "DATA/SAMPLE/LOCATION",
-        },
-        "model": {
-            "hyperparameters": {
-                "param1": Number,
-                "param2": String,
-                "param3": Number,
+        "type": "train",
+        "code_hash": "codebase git hash",
+        "run_id": String ("UUID4"),
+        "pipeline_config": {
+            "data": {
+                "location": {
+                    "source": "DATA/SAMPLE/LOCATION",
+                },
+                "prep_config": Object,
             },
-            "version": "MODEL/VERSION/IN/PACKAGE",
-        }
+            "model": {
+                "hyperparameters": {
+                    "param1": Number,
+                    "param2": String,
+                    "param3": Number,
+                },
+                "version": "MODEL/VERSION/IN/PACKAGE",
+            },
+        },
     }
 ```
 
 2. Instantiate `model` class
-3. Read datasample into memory
+3. Read data sample into memory
 4. Perform model training
 5. Save model
 6. Push notification to the topic
@@ -39,45 +47,26 @@ Core service for serverless ML training/serving
 
 ```javascript
     {
+        "type": "predict",
         "code_hash": "codebase git hash",
-        "data": {
-            "location": {
-                "source": "DATA/SAMPLE/LOCATION"
+        "run_id": String ("UUID4"),
+        "pipeline_config": {
+            "data": {
+                "location": {
+                    "source": "DATA/SAMPLE/LOCATION",
+                    "destination": "DATA/SAMPLE/LOCATION",
+                },
+                "prep_config": Object,
             },
         },
-        "model": {
-            "hyperparameters": {
-                "param1": Number,
-                "param2": String,
-                "param3": Number,
-            },
-            "version": "MODEL/VERSION/IN/PACKAGE",
-        }
     }
 ```
 
-or
-
-```javascript
-    {
-        "code_hash": "codebase git hash",
-        "data": {
-            "location": {
-                "source": "DATA/SAMPLE/LOCATION",
-                "destination": "DATA/SAMPLE/LOCATION",
-            },
-        },
-        "model": {
-            "runID": "MODEL/VERSION/IN/PACKAGE",
-        }
-    }
-```
-
-2. Read model metadata
-3. Instantiate `model` class
-4. Read dataset
-5. Run prediction
-6. Output results
+1. Read model metadata
+2. Instantiate `model` class
+3. Read dataset
+4. Run prediction
+5. Output results
 
 ##### Web-server
 
