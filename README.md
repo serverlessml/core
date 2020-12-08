@@ -4,7 +4,7 @@ Core service for serverless ML training/serving
 
 ## Modus Operanti
 
-### Training
+### Train
 
 1. Upon invocation, validate input config
 
@@ -39,9 +39,9 @@ Core service for serverless ML training/serving
 6. Push notification to the topic
 
 
-### Serving
+### Predict
 
-##### Batch prediction
+#### Batch prediction
 
 1. Upon invocation, validate input config
 
@@ -68,6 +68,6 @@ Core service for serverless ML training/serving
 4. Run prediction
 5. Output results
 
-##### Web-server
+#### Web-server
 
 Deployed separately, with the fixed model.
