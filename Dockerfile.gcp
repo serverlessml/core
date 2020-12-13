@@ -1,12 +1,13 @@
 FROM python:3.8.6-slim-buster AS base
 
+LABEL maintener="Dmitry Kisler"
+LABEL email="admin@dkisler.com"
+LABEL web="www.serverlessml.org"
+
 WORKDIR /app
 
 COPY . .
 
-ARG RUN_TESTS='y'
-
-# install app dependencies
 RUN pip install pip==20.3 --upgrade \
     && pip install -r requirements.txt --no-cache-dir \
     && rm -rf \
