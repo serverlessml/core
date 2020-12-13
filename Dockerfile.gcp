@@ -1,0 +1,26 @@
+FROM python:3.8.6-slim-buster AS base
+
+WORKDIR /app
+
+COPY . .
+
+ARG RUN_TESTS='y'
+
+# install app dependencies
+RUN pip install pip==20.3 --upgrade \
+    && pip install -r requirements.txt --no-cache-dir \
+    && rm -rf \
+        requirements.txt \
+        pkg \
+        /tmp/* \
+        /var/tmp/* \
+        /usr/share/man \
+        /usr/share/doc \
+        /usr/share/doc-base
+
+ENV PROJECT_ID "project"
+ENV PORT 8000
+
+EXPOSE ${PORT}
+
+ENTRYPOINT [ "python", "main.py" ]

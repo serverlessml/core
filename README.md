@@ -12,7 +12,7 @@ Core service for serverless ML training/serving
     {
         "code_hash": "codebase git hash",
         "run_id": String ("UUID4"),
-        "pipeline_config": [{
+        "pipeline_config": {
             "data": {
                 "location": {
                     "source": "DATA/SAMPLE/LOCATION",
@@ -27,7 +27,7 @@ Core service for serverless ML training/serving
                 },
                 "version": "MODEL/VERSION/IN/PACKAGE",
             },
-        }],
+        },
     }
 ```
 
@@ -47,6 +47,7 @@ Core service for serverless ML training/serving
 ```javascript
     {
         "run_id": String ("UUID4"),
+        "train_id": String ("UUID4"),
         "pipeline_config": {
             "data": {
                 "location": {
@@ -54,7 +55,7 @@ Core service for serverless ML training/serving
                     "destination": "DATA/SAMPLE/LOCATION",
                 },
             },
-        },
+        }.
     }
 ```
 

@@ -1,0 +1,10 @@
+LICENSE
+*.http
+*.md
+*.http
+**/*__pycache__
+**/*.mypy_cache
+.vscode
+*.sh
+.github
+tools/**
