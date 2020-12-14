@@ -40,7 +40,7 @@ class Client(AbstractClientFS):
             raise ClientFSError("Path must start with 's3://'")
 
     def _load(self, path: str) -> bytes:
-        Client._validate_prefix(path)
+        self._validate_prefix(path)
         return b""
 
     def _save(self, data: bytes, path: str) -> None:
