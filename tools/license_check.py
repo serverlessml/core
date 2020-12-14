@@ -70,7 +70,7 @@ def main() -> None:
     header = utils.read(ROOT / PATH_LICENSE_HEADER)
     header = adds_comment_sign(header, "#")
 
-    files_codebase = files_at_path(str(ROOT))
+    files_codebase = files_at_path(str(ROOT / "libs"))
 
     files_missing_header = [
         ifile for ifile in files_codebase if header not in utils.read(ifile).strip()

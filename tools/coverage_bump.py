@@ -25,7 +25,6 @@ https://shields.io/ is used to generate badges
 """
 
 import logging
-import os
 import re
 from pathlib import Path
 
@@ -34,7 +33,7 @@ import utils  # type: ignore
 
 def run_gocover(path: Path) -> None:
     """Run gocover."""
-    utils.execute_cmd(f"""""")
+    utils.execute_cmd("""""")
 
 
 def extract_total_coverage(raw: str) -> int:

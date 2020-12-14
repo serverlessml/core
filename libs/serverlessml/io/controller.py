@@ -19,15 +19,13 @@
 
 """Module with the definition of abstract IO controllers"""
 
-from os.path import exists
+import importlib
 import logging
 from abc import ABC, abstractmethod  # type: ignore
-import importlib
-from importlib.abc import Loader
-from types import ModuleType
+from typing import Callable
 
-import serverlessml.io as _io  # type: ignore
-from serverlessml.errors import InitError, ClientFSError, ReadingError, WritingError  # type: ignore
+from serverlessml.errors import InitError  # type: ignore
+from serverlessml.errors import ClientFSError, ReadingError, WritingError
 
 
 class AbstractClientFS(ABC):
@@ -58,9 +56,9 @@ class AbstractClientFS(ABC):
             return self._load(path)
         except ReadingError:
             raise
-        except Exception as exc:
-            message = f"Failed while loading data from data set {str(self)}.\n{str(exc)}"
-            raise ReadingError(message) from exc
+        except Exception as ex:
+            message = f"Failed while loading data from data set {str(self)}.\n{str(ex)}"
+            raise ReadingError(message) from ex
 
     @abstractmethod
     def _load(self, path: str) -> bytes:
@@ -89,9 +87,9 @@ class AbstractClientFS(ABC):
             self._save(data, path)
         except WritingError:
             raise
-        except Exception as exc:
-            message = f"Failed while saving data to data set {str(self)}.\n{str(exc)}"
-            raise WritingError(message) from exc
+        except Exception as ex:
+            message = f"Failed while saving data to data set {str(self)}.\n{str(ex)}"
+            raise WritingError(message) from ex
 
     @abstractmethod
     def _save(self, data: bytes, path: str) -> None:
@@ -115,9 +113,9 @@ class AbstractClientFS(ABC):
         try:
             self._logger.debug("Checking whether target of %s exists", str(self))
             return self._exists(path)
-        except Exception as exc:
-            message = f"Failed during exists check for data set {str(self)}.\n{str(exc)}"
-            raise ClientFSError(message) from exc
+        except Exception as ex:
+            message = f"Failed during exists check for data set {str(self)}.\n{str(ex)}"
+            raise ClientFSError(message) from ex
 
     @abstractmethod
     def _exists(self, path: str) -> bool:
@@ -127,7 +125,7 @@ class AbstractClientFS(ABC):
         )
 
 
-def get_client_storage(storage_type: str):
+def get_client_storage(storage_type: str) -> Callable:
     """Instantiates ``Client`` to load/save data from/to the storage e.g. local, aws, gcp.
 
     Example:
@@ -144,12 +142,21 @@ def get_client_storage(storage_type: str):
     Args:
         storage_type: Data storage type, i.e. local, gcp, s3.
 
+    Returns:
+        Client class instance.
+
     Raises:
+        ClientFSError: Raised when client is not found.
         InitError: Raised when a client couldn't be instantiated.
     """
     try:
         module = importlib.import_module(f"serverlessml.io.{storage_type}.storage", "serverlessml")
-    except ModuleNotFoundError:
-        raise ClientFSError(f"Client for the '{storage_type}' storage is not implemented")
+    except ModuleNotFoundError as ex:
+        raise ClientFSError(f"Client for the '{storage_type}' storage is not implemented") from ex
 
-    return module.Client()  # NOQA # type: ignore
+    try:
+        client: Callable = module.Client()  # type: ignore
+    except Exception as ex:
+        message = f"Client init error:.\n{str(ex)}"
+        raise InitError(message) from ex
+    return client

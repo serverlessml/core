@@ -19,8 +19,8 @@
 
 """Tools set."""
 
-from pathlib import Path
 import os
+from pathlib import Path
 from typing import Union
 
 

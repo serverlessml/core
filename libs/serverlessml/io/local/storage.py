@@ -19,9 +19,10 @@
 
 """Module to communicate to the local file system."""
 
-from os.path import exists
 from gzip import open as gzip_open  # type: ignore
+from os.path import exists
 from typing import Callable
+
 from serverlessml.io.controller import AbstractClientFS  # type: ignore
 
 

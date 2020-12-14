@@ -27,7 +27,7 @@ class Client(AbstractClientFS):
     """``Client`` loads/saves data from/to a GCS bucket."""
 
     @classmethod
-    def _validate_prefix(self, path: str) -> None:
+    def _validate_prefix(cls, path: str) -> None:
         """Validates the path prefix.
 
         Args:
@@ -40,12 +40,11 @@ class Client(AbstractClientFS):
             raise ClientFSError("Path must start with 'gcs://'")
 
     def _load(self, path: str) -> bytes:
-        self._validate_prefix(path)
+        Client._validate_prefix(path)
         return b""
 
     def _save(self, data: bytes, path: str) -> None:
         self._validate_prefix(path)
-        pass
 
     def _exists(self, path: str) -> bool:
         self._validate_prefix(path)

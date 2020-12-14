@@ -19,8 +19,8 @@
 
 """ServerlessML package."""
 from pathlib import Path
-from setuptools import setup, find_namespace_packages  # type: ignore
 
+from setuptools import find_namespace_packages, setup  # type: ignore
 
 DIR = Path(__file__).parent
 requirements = (DIR / "requirements.txt").read_text()

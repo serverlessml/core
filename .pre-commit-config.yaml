@@ -36,6 +36,7 @@ repos:
         entry: pylint --disable=missing-docstring,no-name-in-module
         stages: [commit]
       - id: pylint-all
+        name: "Pylint all files"
         language: system
         pass_filenames: false
         stages: [manual]
@@ -45,6 +46,7 @@ repos:
         language: system
         pass_filenames: false
         entry: black libs main.py
+        args: [--safe, --quiet, "--line-length=100", "--skip-string-normalization"]
       - id: legal
         name: "Licence check"
         language: system

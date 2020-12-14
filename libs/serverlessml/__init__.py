@@ -31,13 +31,12 @@ __all__ = [
 from contextlib import suppress
 
 with suppress(ImportError):
+    from .errors import InitError  # NOQA
     from .errors import (
-        InitError,
         ClientFSError,
+        ModelDefinitionError,
+        ModelPredictionError,
+        ModelTrainError,
         ReadingError,
         WritingError,
-        ModelDefinitionError,
-        ModelDefinitionError,
-        ModelTrainError,
-        ModelPredictionError,
-    )  # NOQA
+    )
