@@ -18,3 +18,14 @@
 # limitations under the License.
 
 """Module with definitions to invoke predict pipeline."""
+
+# TODO:
+# 1. validate input parameters
+# 2. instantiate fs io client
+# 3. instantiate predict pipeline
+# 4. instantiate model
+# 5. read byte data
+# 6. decode byte data into pandas, or pillow data
+# 7. read model
+# 8. run prediction
+# 9. return prediction results

@@ -18,3 +18,15 @@
 # limitations under the License.
 
 """Module with definitions to invoke train pipeline."""
+
+# TODO:
+# 1. validate input parameters
+# 2. instantiate fs io client
+# 3. read byte data
+# 4. decode byte data into pandas, or pillow data
+# 5. instantiate train pipeline
+# 6. run train_test_split
+# 7. instantiate model
+# 8. run training
+# 9. write model meta
+# 9. return training meta, i.e. train metrics + path to the model and other metadata
