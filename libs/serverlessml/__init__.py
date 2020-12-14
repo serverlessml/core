@@ -17,20 +17,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"Module for data storage IO."
-
-__all__ = ["get_client_storage", "ClientFSLocal", "ClientGCS", "ClientS3"]
+__all__ = [
+    "InitError",
+    "ClientFSError",
+    "ReadingError",
+    "WritingError",
+    "ModelDefinitionError",
+    "ModelDefinitionError",
+    "ModelTrainError",
+    "ModelPredictionError",
+]
 
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .controller import get_client_storage  # NOQA
-
-with suppress(ImportError):
-    from .local.storage import Client as ClientFSLocal  # NOQA
-
-with suppress(ImportError):
-    from .gcp.storage import Client as ClientGCS  # NOQA
-
-with suppress(ImportError):
-    from .aws.storage import Client as ClientS3  # NOQA
+    from .errors import (
+        InitError,
+        ClientFSError,
+        ReadingError,
+        WritingError,
+        ModelDefinitionError,
+        ModelDefinitionError,
+        ModelTrainError,
+        ModelPredictionError,
+    )  # NOQA

@@ -26,13 +26,13 @@ DIR = Path(__file__).parent
 requirements = (DIR / "requirements.txt").read_text()
 
 setup(
-    name="etl",
+    name="serverlessml",
     version="1.0.0",
     description="ServerlessML core package.",
-    url="https://github.com/",
+    url="https://www.serverless.org",
     author="Dmitry Kisler",
     author_email="admin@dkisler.com",
-    license="Apache 2.0",
+    license="Apache 2.0 License",
     classifiers=[
         "Development Status :: 2 - Alpha",
         "Programming Language :: Python :: 3.7",

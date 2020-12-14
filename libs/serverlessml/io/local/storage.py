@@ -17,4 +17,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module to communicate to AWS S3."""
+"""Module to communicate to the local file system."""
+
+from os.path import exists
+from gzip import open as gzip_open  # type: ignore
+from typing import Callable
+from serverlessml.io.controller import AbstractClientFS  # type: ignore
+
+
+class Client(AbstractClientFS):
+    """``Client`` loads/saves data from/to a local file."""
+
+    def _load(self, path: str) -> bytes:
+        _reader: Callable = open
+        if path.endswith(".gz"):
+            _reader = gzip_open
+        with _reader(path, "rb") as fread:
+            return fread.read()
+
+    def _save(self, data: bytes, path: str) -> None:
+        _writer: Callable = open
+        if path.endswith(".gz"):
+            _writer = gzip_open
+        with _writer(path, "wb") as fwrite:
+            fwrite.write(data)
+
+    def _exists(self, path: str) -> bool:
+        return exists(path)

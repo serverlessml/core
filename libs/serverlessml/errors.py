@@ -17,4 +17,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module to communicate to the local file system."""
+"""Module with the errors definitions"""
+
+
+class InitError(Exception):
+    """Client instantiation error."""
+
+
+class ClientFSError(Exception):
+    """Filesystem IO client's error."""
+
+
+class ReadingError(Exception):
+    """File reading error."""
+
+
+class WritingError(Exception):
+    """File writing error."""
+
+
+class ModelDefinitionError(Exception):
+    """Model instantiation error."""
+
+
+class ModelTrainError(Exception):
+    """Model training error."""
+
+
+class ModelPredictionError(Exception):
+    """Model prediction error."""
