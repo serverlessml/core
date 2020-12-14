@@ -19,12 +19,19 @@
 
 """Module to communicate to GCP GCS."""
 
+from typing import Tuple
+
+from google.cloud.storage import Client as StorageClient  # type: ignore
 from serverlessml.errors import ClientFSError  # type: ignore
 from serverlessml.io.controller import AbstractClientFS  # type: ignore
 
 
 class Client(AbstractClientFS):
     """``Client`` loads/saves data from/to a GCS bucket."""
+
+    def __init__(self):
+        """Initiates connection to gcs using google gcs library."""
+        self.client = StorageClient()
 
     @classmethod
     def _validate_prefix(cls, path: str) -> None:
@@ -36,16 +43,33 @@ class Client(AbstractClientFS):
         Raises:
             ClientFSError: When provided path is not valid.
         """
-        if not path.startswith("gcs://"):
-            raise ClientFSError("Path must start with 'gcs://'")
+        if not path.startswith("gs://"):
+            raise ClientFSError("Path must start with 'gs://'")
+
+    @classmethod
+    def _split_path(cls, path: str) -> Tuple[str, str]:
+        """Splits object path into a tuple of bucket and object path.
+
+        Args:
+            path: Path to the data object.
+
+        Returns:
+            Tuple with the bucket name and the path to the object/blob in the bucket.
+        """
+        path_elements = path.replace("gs://", "").split("/")
+        return path_elements[0], "/".join(path_elements[1:])
 
     def _load(self, path: str) -> bytes:
-        Client._validate_prefix(path)
-        return b""
+        self._validate_prefix(path)
+        bucket, path = self._split_path(path)
+        return self.client.bucket(bucket).blob(path).download_as_string()
 
     def _save(self, data: bytes, path: str) -> None:
         self._validate_prefix(path)
+        bucket, path = self._split_path(path)
+        self.client.bucket(bucket).blob(path).upload_from_string(data)
 
     def _exists(self, path: str) -> bool:
         self._validate_prefix(path)
-        return False
+        bucket, path = self._split_path(path)
+        return self.client.bucket(bucket).blob(path).exists()

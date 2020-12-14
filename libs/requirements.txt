@@ -1,2 +1,4 @@
-fastjsonschema
+fastjsonschema==2.14.5
+google-cloud-pubsub==1.7.0
+google-cloud-storage==1.30.0
 pandas==1.1.5
