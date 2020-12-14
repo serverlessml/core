@@ -19,7 +19,7 @@
 
 """Module to communicate to the local file system."""
 
-from gzip import open as gzip_open  # type: ignore
+from gzip import open as gzip_open
 from os.path import exists
 from typing import Callable
 

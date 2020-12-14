@@ -21,7 +21,7 @@
 
 import importlib
 import logging
-from abc import ABC, abstractmethod  # type: ignore
+from abc import ABC, abstractmethod
 from typing import Callable
 
 from serverlessml.errors import InitError  # type: ignore

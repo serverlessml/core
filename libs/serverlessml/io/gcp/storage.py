@@ -19,6 +19,8 @@
 
 """Module to communicate to GCP GCS."""
 
+from gzip import GzipFile
+from io import BytesIO
 from typing import Tuple
 
 from google.cloud.storage import Client as StorageClient  # type: ignore
@@ -62,12 +64,24 @@ class Client(AbstractClientFS):
     def _load(self, path: str) -> bytes:
         self._validate_prefix(path)
         bucket, path = self._split_path(path)
+        if path.endswith(".gz"):
+            gzip = self.client.bucket(bucket).blob(path).download_as_string()
+            with GzipFile(fileobj=BytesIO(gzip), mode="rb") as fread:
+                return fread.read()
         return self.client.bucket(bucket).blob(path).download_as_string()
 
     def _save(self, data: bytes, path: str) -> None:
         self._validate_prefix(path)
         bucket, path = self._split_path(path)
-        self.client.bucket(bucket).blob(path).upload_from_string(data)
+        if path.endswith(".gz"):
+            out = BytesIO()
+            with GzipFile(fileobj=out, mode="wb") as fwrite:
+                fwrite.write(data)
+            self.client.bucket(bucket).blob(path).upload_from_string(
+                out.getvalue(), content_type="application/gzip"
+            )
+        else:
+            self.client.bucket(bucket).blob(path).upload_from_string(data)
 
     def _exists(self, path: str) -> bool:
         self._validate_prefix(path)
