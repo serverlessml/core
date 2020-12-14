@@ -33,14 +33,8 @@ repos:
         language: system
         types: [file, python]
         files: ^libs/
-        entry: pylint --disable=missing-docstring,no-name-in-module
-        stages: [commit]
-      - id: pylint-all
-        name: "Pylint all files"
-        language: system
-        pass_filenames: false
-        stages: [manual]
-        entry: pylint --disable=unnecessary-pass,missing-docstring,no-name-in-module
+        entry: pylint --disable=missing-docstring,no-name-in-module,import-error
+        stages: [commit, manual]
       - id: black
         name: "Black"
         language: system

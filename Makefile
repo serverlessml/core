@@ -44,3 +44,6 @@ coverage-bump:
 
 license-check:
 	@./tools/license_check.py
+
+lint:
+	@pre-commit run -a --hook-stage manual
