@@ -19,12 +19,22 @@
 
 """Module to communicate to AWS S3."""
 
-from serverlessml.errors import ClientFSError  # type: ignore
+from gzip import GzipFile
+from io import BytesIO
+from typing import Tuple
+
+import boto3  # type: ignore
+from serverlessml.errors import ClientFSError  # type: ignore; type: ignore
+from serverlessml.errors import ReadingError
 from serverlessml.io.controller import AbstractClientFS  # type: ignore
 
 
 class Client(AbstractClientFS):
     """``Client`` loads/saves data from/to a S3 bucket."""
+
+    def __init__(self):
+        """Initiates connection to S3 using google boto3 library."""
+        self.client = boto3.client("s3")
 
     @classmethod
     def _validate_prefix(cls, path: str) -> None:
@@ -39,13 +49,46 @@ class Client(AbstractClientFS):
         if not path.startswith("s3://"):
             raise ClientFSError("Path must start with 's3://'")
 
+    @classmethod
+    def _split_path(cls, path: str) -> Tuple[str, str]:
+        """Splits object path into a tuple of bucket and object path.
+
+        Args:
+            path: Path to the data object.
+
+        Returns:
+            Tuple with the bucket name and the path to the object/blob in the bucket.
+        """
+        path_elements = path.replace("s3://", "").split("/")
+        return path_elements[0], "/".join(path_elements[1:])
+
     def _load(self, path: str) -> bytes:
         self._validate_prefix(path)
-        return b""
+        bucket, path = self._split_path(path)
+
+        obj = self.client.get_object(Bucket=bucket, Key=path).get("Body")
+        if not obj:
+            raise ReadingError(f"No object {path} found")
+
+        if path.endswith(".gz"):
+            with GzipFile(fileobj=obj, mode="rb") as fread:
+                return fread.read()
+        return obj.read()
 
     def _save(self, data: bytes, path: str) -> None:
         self._validate_prefix(path)
+        bucket, path = self._split_path(path)
+
+        if path.endswith(".gz"):
+            out = BytesIO()
+            with GzipFile(fileobj=out, mode="wb") as fwrite:
+                fwrite.write(data)
+            self.client.put_object(Body=out.getvalue(), Bucket=bucket, Key=path)
+        else:
+            self.client.put_object(Body=data, Bucket=bucket, Key=path)
 
     def _exists(self, path: str) -> bool:
         self._validate_prefix(path)
-        return False
+        bucket, path = self._split_path(path)
+        resp = self.client.list_objects(Bucket=bucket, Prefix=path)
+        return resp.get("Contents") is not None
