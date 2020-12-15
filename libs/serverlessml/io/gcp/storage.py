@@ -64,11 +64,13 @@ class Client(AbstractClientFS):
     def _load(self, path: str) -> bytes:
         self._validate_prefix(path)
         bucket, path = self._split_path(path)
+
+        obj = self.client.bucket(bucket).blob(path).download_as_string()
+
         if path.endswith(".gz"):
-            gzip = self.client.bucket(bucket).blob(path).download_as_string()
-            with GzipFile(fileobj=BytesIO(gzip), mode="rb") as fread:
+            with GzipFile(fileobj=BytesIO(obj), mode="rb") as fread:
                 return fread.read()
-        return self.client.bucket(bucket).blob(path).download_as_string()
+        return obj
 
     def _save(self, data: bytes, path: str) -> None:
         self._validate_prefix(path)
