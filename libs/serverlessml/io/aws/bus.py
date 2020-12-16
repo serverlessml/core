@@ -18,3 +18,36 @@
 # limitations under the License.
 
 """Module to communicate to AWS SQS."""
+
+import json
+from typing import Any, Dict
+
+import boto3
+
+from .. import AbstractClientBus
+
+
+class Client(AbstractClientBus):
+    """Client to publish a message to AWS a SNS topic.
+
+    Args:
+        project_id: AWS account ID.
+        region: AWS region.
+    """
+
+    @classmethod
+    def _get_caller_account_id(cls) -> str:
+        """Requests the AWS account ID by calling AWS STS."""
+        return boto3.client("sts").get_caller_identity().get("Account")
+
+    def __init__(self, project_id: str = None, region: str = "us-east-1") -> None:
+        self.region = region
+        self.client = boto3.client("sns", region_name=self.region)
+        self.project_id = project_id if project_id else self._get_caller_account_id()
+
+    def _get_topic_path(self, topic: str) -> str:
+        return f"arn:aws:sns:{self.region}:{self.project_id}:{topic}"
+
+    def _push(self, topic: str, payload: Dict[str, Any]) -> None:
+        topic_arn = self.get_topic_path(topic=topic)
+        self.client.publish(TopicArn=topic_arn, Message=json.dumps(payload))

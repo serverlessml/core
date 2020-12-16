@@ -24,11 +24,12 @@ from io import BytesIO
 from typing import Tuple
 
 from google.cloud.storage import Client as StorageClient  # type: ignore
-from serverlessml.errors import ClientFSError  # type: ignore
-from serverlessml.io.controller import AbstractClientFS  # type: ignore
+
+from ...errors import ClientStorageError  # type: ignore
+from .. import AbstractClientStorage
 
 
-class Client(AbstractClientFS):
+class Client(AbstractClientStorage):
     """``Client`` loads/saves data from/to a GCS bucket."""
 
     def __init__(self):
@@ -43,10 +44,10 @@ class Client(AbstractClientFS):
             path: Path to the data object.
 
         Raises:
-            ClientFSError: When provided path is not valid.
+            ClientStorageError: When provided path is not valid.
         """
         if not path.startswith("gs://"):
-            raise ClientFSError("Path must start with 'gs://'")
+            raise ClientStorageError("Path must start with 'gs://'")
 
     @classmethod
     def _split_path(cls, path: str) -> Tuple[str, str]:
@@ -63,8 +64,10 @@ class Client(AbstractClientFS):
 
     def _load(self, path: str) -> bytes:
         self._validate_prefix(path)
-        bucket, path = self._split_path(path)
+        if not self._exists(path):
+            raise ClientStorageError(f"No object {path} found")
 
+        bucket, path = self._split_path(path)
         obj = self.client.bucket(bucket).blob(path).download_as_string()
 
         if path.endswith(".gz"):

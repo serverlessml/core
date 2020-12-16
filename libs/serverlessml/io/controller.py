@@ -20,16 +20,84 @@
 """Module with the definition of abstract IO controllers"""
 
 import importlib
+import json
 import logging
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Any, Callable, Dict
 
-from serverlessml.errors import InitError  # type: ignore
-from serverlessml.errors import ClientFSError, ReadingError, WritingError
+from ..errors import ClientBusError, ClientStorageError, InitError
 
 
-class AbstractClientFS(ABC):
-    """``AbstractClientFS`` is the base class for all storage clients implementations.
+class AbstractClientBus(ABC):
+    """``AbstractClientBus`` is the base class for all message bus clients implementations.
+    All storage message brokers/bus clients implementations should extend this abstract class
+    and implement the methods marked as abstract.
+    """
+
+    @property
+    def _logger(self) -> logging.Logger:
+        return logging.getLogger(__name__)
+
+    def push(self, topic: str, payload: Dict[str, Any]) -> None:
+        """Publishes a message by delegation to the provided publish method.
+
+        Args:
+            topic: Message broker topic name to publish.
+            payload: Message content.
+
+        Raises:
+            ClientBusError: When underlying method raises exception.
+        """
+        self._logger.debug("Pushing message to to a topic %s with %s", topic, str(self))
+
+        if payload is None:
+            raise ClientBusError("Pushing `None` is not allowed")
+
+        try:
+            self._push(topic=topic, payload=payload)
+        except ClientBusError:
+            raise
+        except Exception as ex:
+            message = f"Failed to publish {json.dumps(payload)} to {topic} {str(self)}.\n{str(ex)}"
+            raise ClientBusError(message) from ex
+
+    @abstractmethod
+    def _push(self, topic: str, payload: Dict[str, Any]) -> None:
+        raise NotImplementedError(
+            f"`{self.__class__.__name__}` is a subclass of AbstractClientBus and"
+            "it must implement the `_push` method"
+        )
+
+    def get_topic_path(self, topic: str) -> str:
+        """Requests the full topic by delegation to the provided get_topic_path method..
+
+        Args:
+            topic: Message broker topic name to publish.
+
+        Returns:
+            Topic path.
+
+        Raises:
+            ClientBusError: When underlying method raises exception.
+        """
+        self._logger.debug("Requesting path to the topic %s with %s", topic, str(self))
+
+        try:
+            return self._get_topic_path(topic=topic)
+        except Exception as ex:
+            message = f"Failed to return path to the topic {topic} {str(self)}.\n{str(ex)}"
+            raise ClientBusError(message) from ex
+
+    @abstractmethod
+    def _get_topic_path(self, topic: str) -> str:
+        raise NotImplementedError(
+            f"`{self.__class__.__name__}` is a subclass of AbstractClientBus and"
+            "it must implement the `_get_topic_path` method"
+        )
+
+
+class AbstractClientStorage(ABC):
+    """``AbstractClientStorage`` is the base class for all storage clients implementations.
     All storage IO implementations should extend this abstract class
     and implement the methods marked as abstract.
     """
@@ -48,17 +116,17 @@ class AbstractClientFS(ABC):
             Bytes data returned by the provided load method.
 
         Raises:
-            ReadingError: When underlying load method raises error.
+            ClientStorageError: When underlying load method raises exception.
         """
         self._logger.debug("Loading with %s", str(self))
 
         try:
             return self._load(path)
-        except ReadingError:
+        except ClientStorageError:
             raise
         except Exception as ex:
             message = f"Failed while loading data from data set {str(self)}.\n{str(ex)}"
-            raise ReadingError(message) from ex
+            raise ClientStorageError(message) from ex
 
     @abstractmethod
     def _load(self, path: str) -> bytes:
@@ -75,21 +143,20 @@ class AbstractClientFS(ABC):
             path: Path to the file destination to store into.
 
         Raises:
-            ClientFSError: When arguments don't compline with the client requirements.
-            WritingError: When underlying save method raises error.
+            ClientStorageError: When arguments don't compline with the client requirements.
         """
+        self._logger.debug("Saving %s", str(self))
 
         if data is None:
-            raise ClientFSError("Saving `None` is not allowed")
+            raise ClientStorageError("Saving `None` is not allowed")
 
         try:
-            self._logger.debug("Saving %s", str(self))
             self._save(data, path)
-        except WritingError:
+        except ClientStorageError:
             raise
         except Exception as ex:
             message = f"Failed while saving data to data set {str(self)}.\n{str(ex)}"
-            raise WritingError(message) from ex
+            raise ClientStorageError(message) from ex
 
     @abstractmethod
     def _save(self, data: bytes, path: str) -> None:
@@ -108,14 +175,14 @@ class AbstractClientFS(ABC):
             Flag indicating whether the file exists.
 
         Raises:
-            ClientFSError: When underlying exists method raises error.
+            ClientStorageError: When underlying exists method raises exception.
         """
         try:
             self._logger.debug("Checking whether target of %s exists", str(self))
             return self._exists(path)
         except Exception as ex:
             message = f"Failed during exists check for data set {str(self)}.\n{str(ex)}"
-            raise ClientFSError(message) from ex
+            raise ClientStorageError(message) from ex
 
     @abstractmethod
     def _exists(self, path: str) -> bool:
@@ -125,38 +192,59 @@ class AbstractClientFS(ABC):
         )
 
 
-def get_client_storage(storage_type: str) -> Callable:
-    """Instantiates ``Client`` to load/save data from/to the storage e.g. local, aws, gcp.
+def client(platform: str, service: str, **kwargs) -> Callable:
+    """Instantiates ``Client`` to interface platforms e.g. local, aws, gcp.
 
     Example:
     ::
-        >>> from serverlessml.io import get_client_storage
+        >>> from serverlessml.io import client
         >>>
-        >>> storage_client = get_client_storage(storage_type="gcp")
+        >>> storage_client = client(platform="gcp", service="storage")
         >>>
         >>> data_set = storage_client.load(path="gcs://test/test.csv")
         >>> storage_client.save(data_set, path="gcs://test/test1.csv")
         >>> reloaded = storage_client.load(path="gcs://test/test1.csv")
         >>> assert data_set == reloaded
+        >>>
+        >>> bus_client = client(platform="gcp", service="bus")
+        >>>
+        >>> message = {"foo": "bar"}
+        >>> bus_client.push(topic="test", data=message)
 
     Args:
-        storage_type: Data storage type, i.e. local, gcp, s3.
+        platform: Env platform, i.e. local, gcp, s3.
+        service: The name of the service, e.g. storage, bus.
+        kwargs: Additional config attributes, e.g. AWS region.
 
     Returns:
         Client class instance.
 
     Raises:
-        ClientFSError: Raised when client is not found.
         InitError: Raised when a client couldn't be instantiated.
     """
-    try:
-        module = importlib.import_module(f"serverlessml.io.{storage_type}.storage", "serverlessml")
-    except ModuleNotFoundError as ex:
-        raise ClientFSError(f"Client for the '{storage_type}' storage is not implemented") from ex
+
+    supported_platforms = ("local", "aws", "gcp")
+    supported_services = ("storage", "bus")
+
+    if platform not in supported_platforms:
+        raise InitError(
+            f"""{platform} is not supported. Set one of\n{", ".join(supported_platforms)}"""
+        )
+
+    if service not in supported_services:
+        raise InitError(
+            f"""{service} is not supported. Set one of\n{", ".join(supported_services)}"""
+        )
+
+    module = importlib.import_module(f"serverlessml.io.{platform}.{service}", "serverlessml")
+
+    _config = {}
+    if platform == "aws" and service == "bus":
+        _config["region"] = kwargs.get("region", "")
 
     try:
-        client: Callable = module.Client()  # type: ignore
+        class_instance: Callable = module.Client(**_config)  # type: ignore
     except Exception as ex:
         message = f"Client init error:.\n{str(ex)}"
         raise InitError(message) from ex
-    return client
+    return class_instance

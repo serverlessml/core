@@ -23,10 +23,10 @@ from gzip import open as gzip_open
 from os.path import exists
 from typing import Callable
 
-from serverlessml.io.controller import AbstractClientFS  # type: ignore
+from .. import AbstractClientStorage
 
 
-class Client(AbstractClientFS):
+class Client(AbstractClientStorage):
     """``Client`` loads/saves data from/to a local file."""
 
     def _load(self, path: str) -> bytes:

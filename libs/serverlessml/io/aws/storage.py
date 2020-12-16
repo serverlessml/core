@@ -24,12 +24,12 @@ from io import BytesIO
 from typing import Tuple
 
 import boto3  # type: ignore
-from serverlessml.errors import ClientFSError  # type: ignore; type: ignore
-from serverlessml.errors import ReadingError
-from serverlessml.io.controller import AbstractClientFS  # type: ignore
+
+from ...errors import ClientStorageError  # type: ignore; type: ignore
+from ..controller import AbstractClientStorage  # type: ignore
 
 
-class Client(AbstractClientFS):
+class Client(AbstractClientStorage):
     """``Client`` loads/saves data from/to a S3 bucket."""
 
     def __init__(self):
@@ -44,10 +44,10 @@ class Client(AbstractClientFS):
             path: Path to the data object.
 
         Raises:
-            ClientFSError: When provided path is not valid.
+            ClientStorageError: When provided path is not valid.
         """
         if not path.startswith("s3://"):
-            raise ClientFSError("Path must start with 's3://'")
+            raise ClientStorageError("Path must start with 's3://'")
 
     @classmethod
     def _split_path(cls, path: str) -> Tuple[str, str]:
@@ -68,7 +68,7 @@ class Client(AbstractClientFS):
 
         obj = self.client.get_object(Bucket=bucket, Key=path).get("Body")
         if not obj:
-            raise ReadingError(f"No object {path} found")
+            raise ClientStorageError(f"No object {path} found")
 
         if path.endswith(".gz"):
             with GzipFile(fileobj=obj, mode="rb") as fread:

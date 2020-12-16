@@ -19,18 +19,13 @@
 
 "Module for data storage IO."
 
-__all__ = ["get_client_storage", "ClientFSLocal", "ClientGCS", "ClientS3"]
+__all__ = [
+    "client",
+    "AbstractClientStorage",
+    "AbstractClientBus",
+]
 
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .controller import get_client_storage  # NOQA
-
-with suppress(ImportError):
-    from .local.storage import Client as ClientFSLocal  # NOQA
-
-with suppress(ImportError):
-    from .gcp.storage import Client as ClientGCS  # NOQA
-
-with suppress(ImportError):
-    from .aws.storage import Client as ClientS3  # NOQA
+    from .controller import AbstractClientBus, AbstractClientStorage, client  # NOQA

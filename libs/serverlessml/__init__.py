@@ -19,10 +19,8 @@
 
 __all__ = [
     "InitError",
-    "ClientFSError",
-    "ReadingError",
-    "WritingError",
-    "ModelDefinitionError",
+    "ClientStorageError",
+    "ClientBusError",
     "ModelDefinitionError",
     "ModelTrainError",
     "ModelPredictionError",
@@ -31,12 +29,11 @@ __all__ = [
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .errors import InitError  # NOQA
     from .errors import (
-        ClientFSError,
+        ClientBusError,
+        ClientStorageError,
+        InitError,
         ModelDefinitionError,
         ModelPredictionError,
         ModelTrainError,
-        ReadingError,
-        WritingError,
     )

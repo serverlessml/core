@@ -24,16 +24,12 @@ class InitError(Exception):
     """Client instantiation error."""
 
 
-class ClientFSError(Exception):
+class ClientStorageError(Exception):
     """Filesystem IO client's error."""
 
 
-class ReadingError(Exception):
-    """File reading error."""
-
-
-class WritingError(Exception):
-    """File writing error."""
+class ClientBusError(Exception):
+    """Message bus client's error."""
 
 
 class ModelDefinitionError(Exception):
