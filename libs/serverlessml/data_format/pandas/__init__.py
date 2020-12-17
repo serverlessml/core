@@ -18,15 +18,13 @@
 # limitations under the License.
 
 """``serverlessml.data_format.pandas`` is the module
-where all mappings of data formats to pandas DataFrame are defined.
+where all data encoders for pandas DataFrame are defined.
 """
 
-__all__ = ["CSVDataSet", "JSONDataSet"]
+__all__ = ["CSVEncoder", "JSONEncoder"]
 
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .csv_file import CSVDataSet
-
-with suppress(ImportError):
-    from .json_file import JSONDataSet
+    from .csv_encoder import CSVEncoder
+    from .json_encoder import JSONEncoder

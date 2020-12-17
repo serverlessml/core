@@ -32,6 +32,8 @@ __all__ = [
     "InitError",
     "ClientStorageError",
     "ClientBusError",
+    "DataDecodingError",
+    "DataEncodingError",
     "ModelDefinitionError",
     "ModelTrainError",
     "ModelPredictionError",
@@ -40,17 +42,15 @@ __all__ = [
 ]
 
 with suppress(ImportError):
+    from .data_format import dataset_encoder
     from .errors import (
         ClientBusError,
         ClientStorageError,
+        DataDecodingError,
+        DataEncodingError,
         InitError,
         ModelDefinitionError,
         ModelPredictionError,
         ModelTrainError,
     )
-
-with suppress(ImportError):
     from .io import client as client_io
-
-with suppress(ImportError):
-    from .data_format.dataset import dataset_encoder

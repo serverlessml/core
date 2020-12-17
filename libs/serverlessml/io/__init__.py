@@ -17,15 +17,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"``serverlessml.io`` is the module where all IO interfaces are defined."
+"``serverlessml.io`` is the module where all IO clients are defined."
 
 __all__ = [
+    "client",
     "AbstractClientStorage",
     "AbstractClientBus",
-    "client",
 ]
 
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .controller import AbstractClientBus, AbstractClientStorage, client
+    from .controller import client
+    from .template import AbstractClientBus, AbstractClientStorage

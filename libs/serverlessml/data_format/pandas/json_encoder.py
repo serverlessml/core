@@ -17,38 +17,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""``JSONDataSet`` encodes/decodes bytes encoded data of JSON format to/from ``pandas.DatFrame``.
+"""``JSONEncoder`` encodes/decodes bytes encoded data of JSON format to/from ``pandas.DataFrame``.
 """
 import json
 from io import BytesIO
 from typing import Any, Dict, Optional, Union
 
 from pandas import DataFrame, read_json  # type: ignore
-from serverlessml.data_format.dataset import AbstractDataSet
+from serverlessml.data_format.template import AbstractEncoder
 
 
-class JSONDataSet(AbstractDataSet, DataFrame):
-    """``JSONDataSet`` encodes/decides from/to bytes data following JSON definition format.
+class JSONEncoder(AbstractEncoder, DataFrame):
+    """``JSONEncoder`` encodes/decides from/to bytes data following JSON definition format.
     It relies on the `read_json` and `to_json` methods of the ``pandas.DataFrame`` class.
 
     Example:
     ::
 
         >>> import pandas
-        >>> from serverlessml.data_format import JSONDataSet
+        >>> from serverlessml.data_format import JSONEncoder
         >>>
-        >>> data_set = JSONDataSet({"col1": [1, 2], "col2": [4, 5], "col3": [5, 6]})
+        >>> data_set = JSONEncoder({"col1": [1, 2], "col2": [4, 5], "col3": [5, 6]})
         >>>
         >>> data_bytes = data_set.to_raw()
-        >>> reloaded = JSONDataSet.from_raw(data_bytes)
+        >>> reloaded = JSONEncoder.from_raw(data_bytes)
         >>> assert data_set.equals(reloaded)
     """
 
     def __init__(self, data: Optional[Union[DataFrame, Dict[str, Any]]] = None):
-        """Creates a new instance of ``CSVDataSet``.
+        """Creates a new instance of ``JSONEncoder``.
 
         Args:
-            data: Pandas DataFrame.
+            data: Data object.
         """
         super().__init__(data=data)
 

@@ -19,9 +19,10 @@
 
 "``serverlessml.data_format`` is the module where mapping to all data structures are defined."
 
-__all__ = ["AbstractDataSet", "dataset_encoder"]
+__all__ = ["dataset_encoder", "AbstractEncoder"]
 
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .dataset import AbstractDataSet, dataset_encoder
+    from .controller import dataset_encoder
+    from .template import AbstractEncoder
