@@ -17,4 +17,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Namespace to define data format."""
+"``serverlessml.data_format`` is the module where mapping to all data structures are defined."
+
+__all__ = ["AbstractDataSet"]
+
+from contextlib import suppress
+
+with suppress(ImportError):
+    from .dataset import AbstractDataSet

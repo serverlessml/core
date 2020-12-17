@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module with the errors definitions"""
+"""``serverlessml.error`` is the module with the errors definitions."""
 
 
 class InitError(Exception):
@@ -30,6 +30,14 @@ class ClientStorageError(Exception):
 
 class ClientBusError(Exception):
     """Message bus client's error."""
+
+
+class DataDecodingError(Exception):
+    """Error when decoding raw bytedata into desidered data structure format."""
+
+
+class DataEncodingError(Exception):
+    """Error when encoding data from desired structure format into raw bytedata."""
 
 
 class ModelDefinitionError(Exception):

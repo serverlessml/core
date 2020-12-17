@@ -16,3 +16,15 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""``serverlessml.data_format.pandas`` is the module
+where all mappings of data formats to pandas DataFrame are defined.
+"""
+
+__all__ = ["CSVDataSet", "JSONDataSet"]
+
+from contextlib import suppress
+
+with suppress(ImportError):
+    from .csv_dataset import CSVDataSet
+    from .json_dataset import JSONDataSet
