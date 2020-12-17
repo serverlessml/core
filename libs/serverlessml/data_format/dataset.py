@@ -19,11 +19,12 @@
 
 """Dataset abstraction module."""
 
+import importlib
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Callable
 
-from serverlessml.errors import DataDecodingError, DataEncodingError
+from serverlessml.errors import DataDecodingError, DataEncodingError, InitError
 
 
 class AbstractDataSet(ABC):
@@ -94,3 +95,40 @@ class AbstractDataSet(ABC):
             f"`{self.__class__.__name__}` is a subclass of AbstractDataSet and"
             "it must implement the `_to_raw` method"
         )
+
+
+def dataset_encoder(dataset_filename: str) -> Callable:
+    """``dataset_encoder`` dynamically loads a data encoder based on the file extention.
+
+    Args:
+        dataset_filename: Dataset filename.
+
+    Returns:
+        Instance of an ``AbstractDataSet``'s child-class.
+
+    Raises:
+        NotImplementedError: When no encoder is implemeneted for the given file extention.
+        InitError: When underlying class couldn't be instantiated.
+    """
+    supported_ext = {"csv": "pandas", "json": "pandas"}
+
+    if dataset_filename.endswith(".gz"):
+        dataset_filename.replace(".gz", "")
+
+    file_ext = dataset_filename.split(".")[-1]
+
+    submodule = supported_ext.get(file_ext)
+    if not submodule:
+        raise NotImplementedError(
+            f"""{file_ext} is not supported. Set one of\n{", ".join(supported_ext)}"""
+        )
+
+    try:
+        module = importlib.import_module(
+            f"serverlessml.data_format.{submodule}.{file_ext}_file", "serverlessml"
+        )
+        cls_def: Callable = getattr(module, f"{file_ext.upper()}DataSet")  # type: ignore
+    except Exception as ex:
+        message = f"Init error:\n{str(ex)}."
+        raise InitError(message) from ex
+    return cls_def

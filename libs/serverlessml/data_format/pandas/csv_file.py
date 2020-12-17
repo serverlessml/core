@@ -17,30 +17,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""``JSONDataSet`` encodes/decodes bytes encoded data of JSON format to/from ``pandas.DatFrame``.
+"""``CSVDataSet`` encodes/decodes bytes encoded data of CSV format to/from ``pandas.DatFrame``.
 """
-import json
-from io import BytesIO
+from io import BytesIO, StringIO
 from typing import Any, Dict, Optional, Union
 
-from pandas import DataFrame, read_json  # type: ignore
-from serverlessml.data_format import AbstractDataSet
+from pandas import DataFrame, read_csv  # type: ignore
+from serverlessml.data_format.dataset import AbstractDataSet
 
 
-class JSONDataSet(AbstractDataSet, DataFrame):
-    """``JSONDataSet`` encodes/decides from/to bytes data following JSON definition format.
-    It relies on the `read_json` and `to_json` methods of the ``pandas.DataFrame`` class.
+class CSVDataSet(AbstractDataSet, DataFrame):
+    """``CSVDataSet`` encodes/decides from/to bytes data following CSV definition format.
+    It relies on the `read_csv` and `to_csv` methods of the ``pandas.DataFrame`` class.
 
     Example:
     ::
 
         >>> import pandas
-        >>> from serverlessml.data_format import JSONDataSet
+        >>> from serverlessml.data_format import CSVDataSet
         >>>
-        >>> data_set = JSONDataSet({"col1": [1, 2], "col2": [4, 5], "col3": [5, 6]})
+        >>> data_set = CSVDataSet({"col1": [1, 2], "col2": [4, 5], "col3": [5, 6]})
         >>>
         >>> data_bytes = data_set.to_raw()
-        >>> reloaded = JSONDataSet.from_raw(data_bytes)
+        >>> reloaded = CSVDataSet.from_raw(data_bytes)
         >>> assert data_set.equals(reloaded)
     """
 
@@ -54,7 +53,9 @@ class JSONDataSet(AbstractDataSet, DataFrame):
 
     @classmethod
     def _from_raw(cls, data: bytes) -> DataFrame:
-        return cls(read_json(BytesIO(data)))
+        return cls(read_csv(BytesIO(data)))
 
     def _to_raw(self) -> bytes:
-        return json.dumps(self.to_dict(orient="list")).encode("UTF-8")
+        out = StringIO()
+        self.to_csv(out, index=False)
+        return out.getvalue().encode("UTF-8")

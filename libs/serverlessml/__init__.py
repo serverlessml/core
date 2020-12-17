@@ -36,6 +36,7 @@ __all__ = [
     "ModelTrainError",
     "ModelPredictionError",
     "client_io",
+    "dataset_encoder",
 ]
 
 with suppress(ImportError):
@@ -47,4 +48,9 @@ with suppress(ImportError):
         ModelPredictionError,
         ModelTrainError,
     )
+
+with suppress(ImportError):
     from .io import client as client_io
+
+with suppress(ImportError):
+    from .data_format.dataset import dataset_encoder

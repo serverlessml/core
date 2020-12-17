@@ -26,5 +26,7 @@ __all__ = ["CSVDataSet", "JSONDataSet"]
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .csv_dataset import CSVDataSet
-    from .json_dataset import JSONDataSet
+    from .csv_file import CSVDataSet
+
+with suppress(ImportError):
+    from .json_file import JSONDataSet
