@@ -23,7 +23,7 @@ from gzip import open as gzip_open
 from os.path import exists
 from typing import Callable
 
-from .. import AbstractClientStorage
+from serverlessml.io import AbstractClientStorage
 
 
 class Client(AbstractClientStorage):

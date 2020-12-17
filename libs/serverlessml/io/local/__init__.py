@@ -17,4 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for data IO in local env."""
+"""``serverlessml.io.local`` is the module where all IO interfaces
+to communicate with local env services.
+"""

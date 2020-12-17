@@ -23,8 +23,7 @@ import json
 from typing import Any, Dict
 
 import boto3
-
-from .. import AbstractClientBus
+from serverlessml.io import AbstractClientBus
 
 
 class Client(AbstractClientBus):

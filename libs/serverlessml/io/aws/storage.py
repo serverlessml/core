@@ -24,9 +24,8 @@ from io import BytesIO
 from typing import Tuple
 
 import boto3  # type: ignore
-
-from ...errors import ClientStorageError  # type: ignore; type: ignore
-from ..controller import AbstractClientStorage  # type: ignore
+from serverlessml.errors import ClientStorageError  # type: ignore
+from serverlessml.io import AbstractClientStorage
 
 
 class Client(AbstractClientStorage):

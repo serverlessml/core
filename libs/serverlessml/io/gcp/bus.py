@@ -24,8 +24,7 @@ from typing import Any, Dict
 
 from google.auth import default as default_project  # type: ignore
 from google.cloud.pubsub_v1.publisher import Client as PubSubClient  # type: ignore
-
-from .. import AbstractClientBus
+from serverlessml.io import AbstractClientBus
 
 
 class Client(AbstractClientBus):
@@ -46,7 +45,7 @@ class Client(AbstractClientBus):
         self.project_id = project_id if project_id else self._get_caller_account_id()
 
     def _get_topic_path(self, topic: str) -> str:
-        return self.client.topic_path(self.project_id, topic)
+        return self.client.topic_path(self.project_id, topic)  # pylint: disable=no-member
 
     def _push(self, topic: str, payload: Dict[str, Any]) -> None:
         topic = self.get_topic_path(topic)

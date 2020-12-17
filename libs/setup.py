@@ -27,7 +27,7 @@ requirements = (DIR / "requirements.txt").read_text()
 
 setup(
     name="serverlessml",
-    version="1.0.0",
+    version="1.0",
     description="ServerlessML core package.",
     url="https://www.serverless.org",
     author="Dmitry Kisler",

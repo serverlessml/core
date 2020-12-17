@@ -17,6 +17,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""ServerlessML is a framework that makes it easy to build robust and scalable
+ML pipelines to train and serve models in public clouds.
+"""
+
+import logging
+from contextlib import suppress
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+__version__ = "1.0"
+
 __all__ = [
     "InitError",
     "ClientStorageError",
@@ -24,9 +35,8 @@ __all__ = [
     "ModelDefinitionError",
     "ModelTrainError",
     "ModelPredictionError",
+    "client_io",
 ]
-
-from contextlib import suppress
 
 with suppress(ImportError):
     from .errors import (
@@ -37,3 +47,4 @@ with suppress(ImportError):
         ModelPredictionError,
         ModelTrainError,
     )
+    from .io import client as client_io

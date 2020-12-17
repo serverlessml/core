@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"Module for data storage IO."
+"``serverlessml.io`` is the module where all IO interfaces are defined."
 
 __all__ = [
     "client",
@@ -28,4 +28,4 @@ __all__ = [
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .controller import AbstractClientBus, AbstractClientStorage, client  # NOQA
+    from .controller import AbstractClientBus, AbstractClientStorage, client

@@ -25,7 +25,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict
 
-from ..errors import ClientBusError, ClientStorageError, InitError
+from serverlessml.errors import ClientBusError, ClientStorageError, InitError
 
 
 class AbstractClientBus(ABC):
