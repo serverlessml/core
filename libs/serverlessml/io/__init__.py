@@ -20,9 +20,9 @@
 "``serverlessml.io`` is the module where all IO interfaces are defined."
 
 __all__ = [
-    "client",
     "AbstractClientStorage",
     "AbstractClientBus",
+    "client",
 ]
 
 from contextlib import suppress

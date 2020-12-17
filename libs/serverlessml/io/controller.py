@@ -220,14 +220,15 @@ def client(platform: str, service: str, **kwargs) -> Callable:
         Client class instance.
 
     Raises:
-        InitError: Raised when a client couldn't be instantiated.
+        NotImplementedError: When no client is implemeneted for the given service and/or platform.
+        InitError: When a client couldn't be instantiated.
     """
 
     supported_platforms = ("local", "aws", "gcp")
     supported_services = ("storage", "bus")
 
     if platform not in supported_platforms:
-        raise InitError(
+        raise NotImplementedError(
             f"""{platform} is not supported. Set one of\n{", ".join(supported_platforms)}"""
         )
 
@@ -236,15 +237,14 @@ def client(platform: str, service: str, **kwargs) -> Callable:
             f"""{service} is not supported. Set one of\n{", ".join(supported_services)}"""
         )
 
-    module = importlib.import_module(f"serverlessml.io.{platform}.{service}", "serverlessml")
-
     _config = {}
     if platform == "aws" and service == "bus":
         _config["region"] = kwargs.get("region", "")
 
     try:
+        module = importlib.import_module(f"serverlessml.io.{platform}.{service}", "serverlessml")
         class_instance: Callable = module.Client(**_config)  # type: ignore
     except Exception as ex:
-        message = f"Client init error:.\n{str(ex)}"
+        message = f"Client init error:\n{str(ex)}"
         raise InitError(message) from ex
     return class_instance
