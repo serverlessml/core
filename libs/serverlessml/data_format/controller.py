@@ -43,7 +43,7 @@ def dataset_encoder(dataset_filename: str) -> Callable:
     supported_ext = {"csv": "pandas", "json": "pandas"}
 
     if dataset_filename.endswith(".gz"):
-        dataset_filename.replace(".gz", "")
+        dataset_filename = dataset_filename.replace(".gz", "")
 
     file_ext = dataset_filename.split(".")[-1]
 

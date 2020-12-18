@@ -120,14 +120,21 @@ class _ControllerGeneric:
             InitError: When a client couldn't be instantiated.
         """
 
+        self.project_id = project_id
         self.run_id = run_id
         self.platform = platform
         self.storage_client = client(platform=platform, service="storage", **kwargs)
 
-        self.prefix = f"{self.PATH_PREFIX[platform]}{project_id}/{pipeline_type}/{run_id}"
+        self.prefix = os.path.join(
+            self.PATH_PREFIX[platform],
+            self.BUCKET,
+            project_id,
+            pipeline_type,
+            run_id,
+        )
         self.path = {
-            path_type: f"{self.prefix}/{path_type}/{self.run_id}_{path_type}.json"
-            for path_type in ("metadata", "model")
+            prx: f"{self.prefix}/{prx}/{prx}_{self.run_id}.{ext}"
+            for prx, ext in (("metadata", "json"), ("model", "bin"))
         }
 
     @classmethod
@@ -232,14 +239,21 @@ class _Save(_ControllerGeneric):
         """
         self.storage_client.save(model, self.path["model"])  # type: ignore
 
-    def status(self, data: Dict[str, Any]) -> None:
+    def status(self, status: str) -> None:
         """Writes a pipeline status.
 
         Args:
-            data: Status object to store.
+            status: Pipeline status.
         """
-        epoch = int(datetime.utcnow().timestamp())
+        now = datetime.utcnow()
+        epoch = int(now.timestamp())
         path = f"{self.prefix}/status/{self.run_id}_{epoch}.json"
+        data = {
+            "project_id": self.project_id,
+            "run_id": self.run_id,
+            "timestamp": now.isoformat(),
+            "status": status,
+        }
         self.storage_client.save(self._to_json(data), path)  # type: ignore
 
 
