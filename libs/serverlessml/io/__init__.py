@@ -20,7 +20,7 @@
 "``serverlessml.io`` is the module where all IO clients are defined."
 
 __all__ = [
-    "client",
+    "Controller",
     "AbstractClientStorage",
     "AbstractClientBus",
 ]
@@ -28,5 +28,5 @@ __all__ = [
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .controller import client
+    from .controller import Controller
     from .template import AbstractClientBus, AbstractClientStorage

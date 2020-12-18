@@ -40,13 +40,17 @@ class DataEncodingError(Exception):
     """Error when encoding data from desired structure format into raw bytedata."""
 
 
+class DataProcessingError(Exception):
+    """Data preparation/processing error."""
+
+
 class ModelDefinitionError(Exception):
     """Model instantiation error."""
 
 
-class ModelTrainError(Exception):
-    """Model training error."""
+class PipelineTrainError(Exception):
+    """Training pipeline running error."""
 
 
-class ModelPredictionError(Exception):
-    """Model prediction error."""
+class PipelinePredictError(Exception):
+    """Predicting pipeline running error."""

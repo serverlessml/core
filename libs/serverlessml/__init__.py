@@ -34,23 +34,23 @@ __all__ = [
     "ClientBusError",
     "DataDecodingError",
     "DataEncodingError",
+    "DataProcessingError",
     "ModelDefinitionError",
-    "ModelTrainError",
-    "ModelPredictionError",
-    "client_io",
-    "dataset_encoder",
+    "PipelineTrainError",
+    "PipelinePredictError",
+    "Controller",
 ]
 
 with suppress(ImportError):
-    from .data_format import dataset_encoder
     from .errors import (
         ClientBusError,
         ClientStorageError,
         DataDecodingError,
         DataEncodingError,
+        DataProcessingError,
         InitError,
         ModelDefinitionError,
-        ModelPredictionError,
-        ModelTrainError,
+        PipelinePredictError,
+        PipelineTrainError,
     )
-    from .io import client as client_io
+    from .io import Controller

@@ -22,9 +22,13 @@ with the centralized IO clients controller.
 """
 
 import importlib
-from typing import Callable
+import json
+import os
+from datetime import datetime
+from typing import Any, Callable, Dict
 
-from serverlessml.errors import InitError
+from serverlessml.data_format import dataset_encoder  # type: ignore
+from serverlessml.errors import InitError  # type: ignore
 
 
 def client(platform: str, service: str, **kwargs) -> Callable:
@@ -83,3 +87,186 @@ def client(platform: str, service: str, **kwargs) -> Callable:
         message = f"Client init error:\n{str(ex)}"
         raise InitError(message) from ex
     return class_instance
+
+
+class _ControllerGeneric:
+    """``_ControllerGeneric`` controlls IO interactions.
+
+    Raises:
+        ClientStorageError: When underlying storage client fails.
+        NotImplementedError: When no encoder is implemeneted for the given file extention.
+        InitError: When underlying class couldn't be instantiated.
+    """
+
+    BUCKET = "serverlessml-pipeline"
+    PATH_PREFIX = {
+        "aws": "s3://",
+        "gcp": "gs://",
+        "local": "",
+    }
+
+    def __init__(self, project_id: str, run_id: str, platform: str, pipeline_type: str, **kwargs):
+        """Instantiates ``_ControllerGeneric`` to interface platforms e.g. local, aws, gcp.
+
+        Args:
+            project_id: Model project ID.
+            run_id: Experiment/run ID.
+            platform: Env platform, i.e. local, gcp, s3.
+            pipeline_type: ML pipeline: train, or predict.
+            kwargs: Additional config attributes, e.g. AWS region.
+
+        Raises:
+            NotImplementedError: When no controller is implemeneted for the given platform.
+            InitError: When a client couldn't be instantiated.
+        """
+
+        self.run_id = run_id
+        self.platform = platform
+        self.storage_client = client(platform=platform, service="storage", **kwargs)
+
+        self.prefix = f"{self.PATH_PREFIX[platform]}{project_id}/{pipeline_type}/{run_id}"
+        self.path = {
+            path_type: f"{self.prefix}/{path_type}/{self.run_id}_{path_type}.json"
+            for path_type in ("metadata", "model")
+        }
+
+    @classmethod
+    def get_object_name(cls, path: str) -> str:
+        """Returns object name.
+
+        Args:
+            path: Location of the data file.
+
+        Returns:
+            Object name.
+        """
+        return os.path.basename(path)
+
+
+class _Load(_ControllerGeneric):
+    """``_Load`` controlls reading IO interactions."""
+
+    @classmethod
+    def _from_json(cls, obj: bytes) -> Dict[str, Any]:
+        """Decodes JSON to dict.
+
+        Args:
+            obj: Dict to dencode.
+
+        Returns:
+            Decoded JSON.
+        """
+        return json.loads(obj)
+
+    def data(self, path: str) -> Any:
+        """Reads the dataset.
+
+        Args:
+            path: Location of the data file.
+
+        Returns:
+            Dataset object.
+        """
+        data_bytes = self.storage_client.load(path)  # type: ignore
+        data_encoder = dataset_encoder(self.get_object_name(path))
+        return data_encoder.from_raw(data_bytes)  # type: ignore
+
+    def metadata(self) -> Dict[str, Any]:
+        """Reads the metadata.
+
+        Returns:
+            Metadata dict.
+        """
+        data_bytes = self.storage_client.load(self.path["metadata"])  # type: ignore
+        return self._from_json(data_bytes)
+
+    def model(self) -> bytes:
+        """Reads the model bytes encoded file.
+
+        Returns:
+            Model bytes encoded object.
+        """
+        return self.storage_client.load(self.path["model"])  # type: ignore
+
+
+class _Save(_ControllerGeneric):
+    """``_Save`` controlls writing IO interactions."""
+
+    @classmethod
+    def _to_json(cls, obj: Dict[str, Any]) -> bytes:
+        """Encodes dict to JSON.
+
+        Args:
+            obj: Dict to encode.
+
+        Returns:
+            Bytes encoded JSON.
+        """
+        return json.dumps(obj).encode("UTF-8")
+
+    def data(self, data: Any, path: str) -> None:
+        """Writes the dataset.
+
+        Args:
+            data: Dataset object to store.
+            path: Location of the data file.
+        """
+        data_encoder = dataset_encoder(self.get_object_name(path))(data)
+        data_bytes = data_encoder.to_raw()
+        self.storage_client.save(data_bytes, path)  # type: ignore
+
+    def metadata(self, data: Dict[str, Any]) -> None:
+        """Writes the metadata.
+
+        Args:
+            data: Metadata dict.
+        """
+        data_bytes = self._to_json(data)
+        self.storage_client.save(data_bytes, self.path["metadata"])  # type: ignore
+
+    def model(self, model: bytes) -> None:
+        """Writes the model bytes encoded file.
+
+        Args:
+            model: Model bytes encoded object.
+        """
+        self.storage_client.save(model, self.path["model"])  # type: ignore
+
+    def status(self, data: Dict[str, Any]) -> None:
+        """Writes a pipeline status.
+
+        Args:
+            data: Status object to store.
+        """
+        epoch = int(datetime.utcnow().timestamp())
+        path = f"{self.prefix}/status/{self.run_id}_{epoch}.json"
+        self.storage_client.save(self._to_json(data), path)  # type: ignore
+
+
+class Controller:  # pylint: disable=too-few-public-methods
+    """``Controller`` controlls IO interactions."""
+
+    def __init__(self, project_id: str, run_id: str, platform: str, pipeline_type: str, **kwargs):
+        """Instantiates ``Controller`` to interface platforms e.g. local, aws, gcp.
+
+        Example:
+        ::
+            >>> from serverlessml.io import Controller
+            >>>
+            >>> controller = Controller(
+            >>>     platform="gcp", run_id="d0c5857d-59d2-44b0-ba1d-341e4971e15d",
+            >>> )
+
+        Args:
+            project_id: Model project ID.
+            run_id: Experiment/run ID.
+            platform: Env platform, i.e. local, gcp, s3.
+            pipeline_type: ML pipeline: train, or predict.
+            kwargs: Additional config attributes, e.g. AWS region.
+
+        Raises:
+            NotImplementedError: When no controller is implemeneted for the given platform.
+            InitError: When a client couldn't be instantiated.
+        """
+        self.load = _Load(project_id, run_id, platform, pipeline_type, **kwargs)
+        self.save = _Save(project_id, run_id, platform, pipeline_type, **kwargs)
