@@ -24,6 +24,7 @@ from io import BytesIO
 from typing import Any, Dict, Optional, Union
 
 from pandas import DataFrame, read_json  # type: ignore
+
 from serverlessml.data_format.template import AbstractEncoder
 
 

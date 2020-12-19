@@ -24,7 +24,8 @@ from typing import Any, Dict
 
 from google.auth import default as default_project  # type: ignore
 from google.cloud.pubsub_v1.publisher import Client as PubSubClient  # type: ignore
-from serverlessml.io import AbstractClientBus
+
+from serverlessml.controllers.io import AbstractClientBus
 
 
 class Client(AbstractClientBus):

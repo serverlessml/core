@@ -17,40 +17,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""ServerlessML is a framework that makes it easy to build robust and scalable
-ML pipelines to train and serve models in public clouds.
-"""
+"``serverlessml.controllers`` is the module where all controllers are defined."
 
-import logging
+__all__ = ["ControllerIO"]
+
 from contextlib import suppress
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-
-__version__ = "1.0"
-
-__all__ = [
-    "InitError",
-    "ClientStorageError",
-    "ClientBusError",
-    "DataDecodingError",
-    "DataEncodingError",
-    "DataProcessingError",
-    "ModelDefinitionError",
-    "PipelineTrainError",
-    "PipelinePredictError",
-    "Controller",
-]
-
 with suppress(ImportError):
-    from .errors import (
-        ClientBusError,
-        ClientStorageError,
-        DataDecodingError,
-        DataEncodingError,
-        DataProcessingError,
-        InitError,
-        ModelDefinitionError,
-        PipelinePredictError,
-        PipelineTrainError,
-    )
-    from .io import Controller
+    from .io.controller import Controller as ControllerIO

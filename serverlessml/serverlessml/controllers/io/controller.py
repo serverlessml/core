@@ -81,7 +81,9 @@ def client(platform: str, service: str, **kwargs) -> Callable:
         _config["region"] = kwargs.get("region", "")
 
     try:
-        module = importlib.import_module(f"serverlessml.io.{platform}.{service}", "serverlessml")
+        module = importlib.import_module(
+            f"serverlessml.handlers.{platform}.io.{service}", "serverlessml"
+        )
         class_instance: Callable = module.Client(**_config)  # type: ignore
     except Exception as ex:
         message = f"Client init error:\n{str(ex)}"

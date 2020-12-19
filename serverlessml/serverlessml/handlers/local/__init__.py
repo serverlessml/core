@@ -17,29 +17,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""ServerlessML package."""
-from pathlib import Path
-
-from setuptools import find_namespace_packages, setup  # type: ignore
-
-DIR = Path(__file__).parent
-requirements = (DIR / "requirements.txt").read_text()
-
-setup(
-    name="serverlessml",
-    version="1.0",
-    description="ServerlessML core package.",
-    url="https://www.serverless.org",
-    author="Dmitry Kisler",
-    author_email="admin@dkisler.com",
-    license="Apache 2.0 License",
-    classifiers=[
-        "Development Status :: 2 - Alpha",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "License :: OSI Approved :: Apache 2.0 License",
-        "Operating System :: OS Independent",
-    ],
-    packages=find_namespace_packages(where=".", exclude=("test",)),
-    install_requires=requirements,
-)
+"""``serverlessml.handlers.local`` is the module with all local env handlers."""

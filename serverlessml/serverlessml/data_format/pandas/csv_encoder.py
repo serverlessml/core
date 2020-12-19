@@ -23,6 +23,7 @@ from io import BytesIO, StringIO
 from typing import Any, Dict, Optional, Union
 
 from pandas import DataFrame, read_csv  # type: ignore
+
 from serverlessml.data_format.template import AbstractEncoder
 
 

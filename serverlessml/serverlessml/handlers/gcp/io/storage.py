@@ -24,8 +24,9 @@ from io import BytesIO
 from typing import Tuple
 
 from google.cloud.storage import Client as StorageClient  # type: ignore
+
+from serverlessml.controllers.io import AbstractClientStorage
 from serverlessml.errors import ClientStorageError  # type: ignore
-from serverlessml.io import AbstractClientStorage
 
 
 class Client(AbstractClientStorage):

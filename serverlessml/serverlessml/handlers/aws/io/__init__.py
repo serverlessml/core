@@ -17,6 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""``serverlessml.io.gcp`` is the module where all IO interfaces
-to communicate with GCP env services.
+"""``serverlessml.handlers.aws.io`` is the module where all IO interfaces
+to communicate with AWS env services.
 """

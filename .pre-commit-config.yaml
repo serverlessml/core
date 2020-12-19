@@ -29,17 +29,17 @@ repos:
         types: [file, python]
         entry: isort
       - id: pylint
-        name: "PyLint on libs/*"
+        name: "PyLint on serverlessml/*"
         language: system
         types: [file, python]
-        files: ^libs/
+        files: ^serverlessml/
         entry: pylint --disable=missing-docstring,no-name-in-module,import-error
         stages: [commit, manual]
       - id: black
         name: "Black"
         language: system
         pass_filenames: false
-        entry: black libs main.py
+        entry: black serverlessml model main.py
         args: [--safe, --quiet, "--line-length=100", "--skip-string-normalization"]
       - id: legal
         name: "Licence check"

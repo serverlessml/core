@@ -17,16 +17,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"``serverlessml.io`` is the module where all IO clients are defined."
+"""ServerlessML is a framework that makes it easy to build robust and scalable
+ML pipelines to train and serve models in public clouds.
+"""
 
-__all__ = [
-    "Controller",
-    "AbstractClientStorage",
-    "AbstractClientBus",
-]
-
+import logging
 from contextlib import suppress
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+__version__ = "1.0"
+
+__all__ = [
+    "InitError",
+    "ClientStorageError",
+    "ClientBusError",
+    "DataDecodingError",
+    "DataEncodingError",
+    "DataProcessingError",
+    "ModelDefinitionError",
+    "PipelineTrainError",
+    "PipelinePredictError",
+    "ControllerIO",
+]
+
 with suppress(ImportError):
-    from .controller import Controller
-    from .template import AbstractClientBus, AbstractClientStorage
+    from .controllers import ControllerIO
+    from .errors import (
+        ClientBusError,
+        ClientStorageError,
+        DataDecodingError,
+        DataEncodingError,
+        DataProcessingError,
+        InitError,
+        ModelDefinitionError,
+        PipelinePredictError,
+        PipelineTrainError,
+    )
