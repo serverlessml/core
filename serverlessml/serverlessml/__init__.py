@@ -26,7 +26,9 @@ from contextlib import suppress
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-__version__ = "1.0"
+__version__ = "{_replace_version_}"
+
+__platform__ = "{_replace_platform_}"
 
 __all__ = [
     "InitError",
@@ -36,8 +38,8 @@ __all__ = [
     "DataEncodingError",
     "DataProcessingError",
     "ModelDefinitionError",
-    "PipelineTrainError",
-    "PipelinePredictError",
+    "PipelineRunningError",
+    "PipelineConfigError",
     "ControllerIO",
 ]
 
@@ -51,6 +53,6 @@ with suppress(ImportError):
         DataProcessingError,
         InitError,
         ModelDefinitionError,
-        PipelinePredictError,
-        PipelineTrainError,
+        PipelineConfigError,
+        PipelineRunningError,
     )

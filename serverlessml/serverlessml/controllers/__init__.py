@@ -19,9 +19,10 @@
 
 "``serverlessml.controllers`` is the module where all controllers are defined."
 
-__all__ = ["ControllerIO"]
+__all__ = ["ControllerIO", "Validator"]
 
 from contextlib import suppress
 
 with suppress(ImportError):
+    from .config_validator import Validator
     from .io.controller import Controller as ControllerIO

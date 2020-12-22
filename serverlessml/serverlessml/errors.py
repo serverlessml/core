@@ -48,9 +48,9 @@ class ModelDefinitionError(Exception):
     """Model instantiation error."""
 
 
-class PipelineTrainError(Exception):
-    """Training pipeline running error."""
+class PipelineRunningError(Exception):
+    """Pipeline running error."""
 
 
-class PipelinePredictError(Exception):
-    """Predicting pipeline running error."""
+class PipelineConfigError(Exception):
+    """Error to be raised when faulty pipeline config submitted."""

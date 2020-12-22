@@ -107,14 +107,13 @@ class _ControllerGeneric:
         "local": "",
     }
 
-    def __init__(self, project_id: str, run_id: str, platform: str, pipeline_type: str, **kwargs):
+    def __init__(self, project_id: str, run_id: str, platform: str, **kwargs):
         """Instantiates ``_ControllerGeneric`` to interface platforms e.g. local, aws, gcp.
 
         Args:
             project_id: Model project ID.
             run_id: Experiment/run ID.
             platform: Env platform, i.e. local, gcp, s3.
-            pipeline_type: ML pipeline: train, or predict.
             kwargs: Additional config attributes, e.g. AWS region.
 
         Raises:
@@ -124,19 +123,25 @@ class _ControllerGeneric:
 
         self.project_id = project_id
         self.run_id = run_id
-        self.platform = platform
+        self.uri_prefix = self.PATH_PREFIX[platform]
         self.storage_client = client(platform=platform, service="storage", **kwargs)
 
         self.prefix = os.path.join(
-            self.PATH_PREFIX[platform],
+            self.uri_prefix,
             self.BUCKET,
             project_id,
-            pipeline_type,
+        )
+
+        self.prefix_per_run = os.path.join(
+            self.prefix,
+            "runs",
             run_id,
         )
+
         self.path = {
-            prx: f"{self.prefix}/{prx}/{prx}_{self.run_id}.{ext}"
-            for prx, ext in (("metadata", "json"), ("model", "bin"))
+            "metadata": f"{self.prefix_per_run}/metadata_{run_id}.json",
+            "metrics": f"{self.prefix_per_run}/metrics_{run_id}.json",
+            "model": f"{self.prefix_per_run}/model/model_{run_id}.bin",
         }
 
     @classmethod
@@ -233,6 +238,23 @@ class _Save(_ControllerGeneric):
         data_bytes = self._to_json(data)
         self.storage_client.save(data_bytes, self.path["metadata"])  # type: ignore
 
+    def metrics(self, data: Dict[str, Any]) -> None:
+        """Writes the metrics.
+
+        Args:
+            data: Metics dict.
+        """
+        data_bytes = self._to_json(data)
+        self.storage_client.save(data_bytes, self.path["metrics"])  # type: ignore
+
+    def run_type(self, run_type: str) -> None:
+        """Writes the pipeline experiement's type, i.e. train, or predict.
+
+        Args:
+            run_type: ML pipeline: train, or predict.
+        """
+        self.storage_client.save(b"", f"{self.prefix}/{run_type}/{self.run_id}")  # type: ignore
+
     def model(self, model: bytes) -> None:
         """Writes the model bytes encoded file.
 
@@ -241,28 +263,38 @@ class _Save(_ControllerGeneric):
         """
         self.storage_client.save(model, self.path["model"])  # type: ignore
 
-    def status(self, status: str) -> None:
+    def status(self, status: str, **kwargs) -> None:
         """Writes a pipeline status.
 
         Args:
             status: Pipeline status.
+            kwargs: Additional status attributes.
         """
         now = datetime.utcnow()
         epoch = int(now.timestamp())
-        path = f"{self.prefix}/status/{self.run_id}_{epoch}.json"
         data = {
-            "project_id": self.project_id,
-            "run_id": self.run_id,
-            "timestamp": now.isoformat(),
-            "status": status,
+            **{
+                "project_id": self.project_id,
+                "run_id": self.run_id,
+                "timestamp": now.isoformat(),
+                "status": status,
+            },
+            **kwargs,
         }
-        self.storage_client.save(self._to_json(data), path)  # type: ignore
+
+        paths = [
+            f"{self.prefix_per_run}/status/{self.run_id}_{epoch}.json",
+            f"{self.prefix}/status/last.json",
+        ]
+
+        for path in paths:
+            self.storage_client.save(self._to_json(data), path)  # type: ignore
 
 
 class Controller:  # pylint: disable=too-few-public-methods
     """``Controller`` controlls IO interactions."""
 
-    def __init__(self, project_id: str, run_id: str, platform: str, pipeline_type: str, **kwargs):
+    def __init__(self, project_id: str, run_id: str, platform: str, **kwargs):
         """Instantiates ``Controller`` to interface platforms e.g. local, aws, gcp.
 
         Example:
@@ -276,13 +308,12 @@ class Controller:  # pylint: disable=too-few-public-methods
         Args:
             project_id: Model project ID.
             run_id: Experiment/run ID.
-            platform: Env platform, i.e. local, gcp, s3.
-            pipeline_type: ML pipeline: train, or predict.
+            platform: Env platform, i.e. local, gcp, aws.
             kwargs: Additional config attributes, e.g. AWS region.
 
         Raises:
             NotImplementedError: When no controller is implemeneted for the given platform.
             InitError: When a client couldn't be instantiated.
         """
-        self.load = _Load(project_id, run_id, platform, pipeline_type, **kwargs)
-        self.save = _Save(project_id, run_id, platform, pipeline_type, **kwargs)
+        self.load = _Load(project_id, run_id, platform, **kwargs)
+        self.save = _Save(project_id, run_id, platform, **kwargs)
