@@ -18,13 +18,12 @@
 # limitations under the License.
 
 """ServerlessML package."""
-import os
+
 from pathlib import Path
 
 from setuptools import find_namespace_packages, setup  # type: ignore
 
 VERSION = "1.0"
-PLATFORM = os.getenv("PLATFORM", "all")
 
 DIR = Path(__file__).parent
 REQUIREMENTS_BASE = (DIR / "requirements.txt").read_text().split("\n")[:-1]
@@ -38,18 +37,6 @@ REQUIREMENTS = {
     "gcp": [*REQUIREMENTS_BASE, *REQUIREMENTS_GCP],
 }
 
-EXCLUDES = {
-    "all": ("test",),
-    "aws": (
-        "test1",
-        "handlers.gcp",
-    ),
-    "gcp": (
-        "test",
-        "handlers.aws",
-    ),
-}
-
 
 def patch_pkg_init():
     """Patches package __init__.py."""
@@ -57,7 +44,6 @@ def patch_pkg_init():
     content_path.write_text(
         content_path.read_text().format(
             _replace_version_=VERSION,
-            _replace_platform_=PLATFORM,
         ),
     )
 
@@ -80,7 +66,7 @@ def do_setup():
             "License :: OSI Approved :: Apache 2.0 License",
             "Operating System :: OS Independent",
         ],
-        packages=find_namespace_packages(where=".", exclude=EXCLUDES[PLATFORM]),
+        packages=find_namespace_packages(where=".", exclude=("test",)),
         extras_require=REQUIREMENTS,
     )
 

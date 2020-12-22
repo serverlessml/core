@@ -113,6 +113,11 @@ schema_train = {
             "description": "Modelling run ID.",
             "$ref": "#/definitions/uuid4",
         },
+        "code_hash": {
+            "description": "Codebase (git commit) SHA1 hash value.",
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{40}$",
+        },
         "pipeline_config": {"$ref": "#/definitions/item"},
     },
 }

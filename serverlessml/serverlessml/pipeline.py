@@ -24,9 +24,8 @@ with the train and predict pipeline runner definition.
 import importlib
 import logging
 from types import ModuleType
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
-from serverlessml import __platform__
 from serverlessml.controllers import ControllerIO, Validator
 from serverlessml.errors import (
     InitError,
@@ -46,7 +45,33 @@ class PipelineRunner:
             format="%(asctime)s.%(msecs)03d [%(levelname)-5s] [%(linenum)d] %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
         )
-        return logging.getLogger(f"[PipelineRunner] project:{self.project_id} run:{self.run_id}")
+        return logging.getLogger(__name__)
+
+    def __init__(self, controller_io: Callable):
+        """Instantiates ``Runner`` to execute training and prediction pipelines.
+
+        Args:
+            controller_io: IO controller "factory".
+        """
+        self.controller_io_factory = controller_io
+        self.validate = Validator()
+        self.controller_io: ControllerIO = None  # type: ignore
+
+    def _instantiate_io_controller(self, run_id: str) -> None:
+        """Instantiates IO controller using run_id to map artifacts to the storage location.
+
+        Args:
+            run_id: Experiment/run ID.
+
+        Raises:
+            InitError: When a client couldn't be instantiated.
+        """
+        try:
+            self.controller_io = self.controller_io_factory(run_id=run_id)
+        except Exception as ex:
+            message = f"IO Controller error: {ex}"
+            self._logger.error(message)
+            raise InitError(message) from ex
 
     def _error(self, message: str) -> None:
         self._logger.error(message)
@@ -80,37 +105,6 @@ class PipelineRunner:
             self._error(f"Failed loading the model code: {ex}")
         return udm
 
-    def __init__(
-        self,
-        project_id: str,
-        run_id: str,
-        **kwargs,
-    ):
-        """Instantiates ``Runner`` to execute training and prediction pipelines.
-
-        Args:
-            project_id: Model project ID.
-            run_id: Experiment/run ID.
-            kwargs: Additional config attributes, e.g. AWS region.
-
-        Raises:
-            InitError: When `Runner` pipeline is failing to be initiated.
-        """
-        try:
-            self.controller_io = ControllerIO(
-                project_id=project_id, run_id=run_id, platform=__platform__, **kwargs
-            )
-        except Exception as ex:
-            message = f"IO Controller error: {ex}"
-            self._logger.error(message)
-            raise InitError(message) from ex
-
-        self.project_id = project_id
-        self.run_id = run_id
-
-        self.validate = Validator()
-        self.controller_io.save.status(status="SUBMITTED")
-
     def train(self, config: Dict[str, Any]) -> None:
         """`train` runs training pipeline.
 
@@ -123,18 +117,18 @@ class PipelineRunner:
             ModelDefinitionError: When underlying model's class failed to be instantiated.
         """
         self._logger.debug("Running train pipeline.")
-
-        self.controller_io.save.status(status="RUNNING")
-        self.controller_io.save.run_type(run_type="train")
-
         try:
             self.validate.train(config)
         except PipelineConfigError as ex:
             self._error(f"Faulty config submitted: {ex}")
 
-        pipeline_cfg: Dict[str, Any] = config.get("pipeline_config", {})
-        self.controller_io.save.metadata(pipeline_cfg)
+        self._instantiate_io_controller(config.get("run_id", None))
 
+        self.controller_io.save.status(status="RUNNING")
+        self.controller_io.save.run_type(run_type="train")
+        self.controller_io.save.metadata(config)
+
+        pipeline_cfg: Dict[str, Any] = config.get("pipeline_config", {})
         model_cfg: Dict[str, Any] = pipeline_cfg.get("model", {})
         data_cfg: Dict[str, Any] = pipeline_cfg.get("data", {})
 
@@ -156,8 +150,8 @@ class PipelineRunner:
         except Exception as ex:
             self._error(f"Failed while running user defined pipeline: {ex}")
 
-        self.controller_io.save.metrics(metrics)
         self.controller_io.save.model(model)
+        self.controller_io.save.metrics(metrics)
         self.controller_io.save.status(status="SUCCESS")
 
     def predict(self, config: Dict[str, Any]) -> None:
@@ -171,32 +165,31 @@ class PipelineRunner:
             PipelineRunningError: When pipeline failed.
         """
         self._logger.debug("Running prediction pipeline.")
-
-        self.controller_io.save.status(status="RUNNING")
-        self.controller_io.save.run_type(run_type="predict")
-
         try:
             self.validate.predict(config)
         except PipelineConfigError as ex:
             self._error(f"Faulty config submitted: {ex}")
 
+        self._instantiate_io_controller(config.get("run_id", None))
+
+        self.controller_io.save.status(status="RUNNING")
+        self.controller_io.save.run_type(run_type="predict")
+        self.controller_io.save.metadata(config)
+
         pipeline_cfg: Dict[str, Any] = config.get("pipeline_config", {})
-        self.controller_io.save.metadata(pipeline_cfg)
 
         train_id: str = pipeline_cfg.get("train_id", "")
-        controller_io_train = ControllerIO(
-            project_id=self.project_id, run_id=train_id, platform=__platform__
-        )
+        controller_io_train = self.controller_io_factory(run_id=train_id)
 
         pipeline_cfg_train: Dict[str, Any] = controller_io_train.load.metadata()
-        model: bytes = controller_io_train.load.model()
+        model_cfg: Dict[str, Any] = pipeline_cfg_train.get("pipeline_config", {}).get("model", {})
 
-        model_cfg: Dict[str, Any] = pipeline_cfg_train.get("model", {})
+        model: bytes = controller_io_train.load.model()
         model_module = self._load_pipeline_definition_module(model_cfg)
 
         data_cfg: Dict[str, Any] = pipeline_cfg.get("data", {})
         path_data_source: str = data_cfg.get("location", {}).get("source", "")
-        path_data_destination = data_cfg.get("location", {}).get("destination", "")
+        path_data_destination: str = data_cfg.get("location", {}).get("destination", "")
 
         try:
             dataset_in = self.controller_io.load.data(path_data_source)

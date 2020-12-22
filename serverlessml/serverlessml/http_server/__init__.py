@@ -16,3 +16,13 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""``serverlessml.http_server`` contains the logic defining http server endpoints.
+"""
+
+from contextlib import suppress
+
+__all__ = ["Server"]
+
+with suppress(ImportError):
+    from .controller import Server
