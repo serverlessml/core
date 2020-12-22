@@ -24,7 +24,7 @@ It requires a web server.
 from os import getenv
 import sys
 
-from serverlessml.handlers import run_gcp
+from serverlessml import run_gcp
 
 
 if __name__ == "__main__":

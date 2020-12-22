@@ -40,6 +40,8 @@ __all__ = [
     "PipelineConfigError",
     "ControllerIO",
     "Runner",
+    "run_local",
+    "run_gcp",
 ]
 
 with suppress(ImportError):
@@ -55,4 +57,6 @@ with suppress(ImportError):
         PipelineConfigError,
         PipelineRunningError,
     )
+    from .handlers.gcp.runner import run as run_gcp
+    from .handlers.local.runner import run as run_local
     from .pipeline import PipelineRunner as Runner

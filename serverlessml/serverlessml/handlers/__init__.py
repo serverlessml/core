@@ -18,11 +18,3 @@
 # limitations under the License.
 
 """``serverlessml.handlers`` is the module with handlers per platform."""
-
-from contextlib import suppress
-
-__all__ = ["run_local", "run_gcp"]
-
-with suppress(ImportError):
-    from .gcp.runner import run as run_gcp
-    from .local.runner import run as run_local
