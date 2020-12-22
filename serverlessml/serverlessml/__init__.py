@@ -41,6 +41,7 @@ __all__ = [
     "PipelineRunningError",
     "PipelineConfigError",
     "ControllerIO",
+    "Runner",
 ]
 
 with suppress(ImportError):
@@ -56,3 +57,4 @@ with suppress(ImportError):
         PipelineConfigError,
         PipelineRunningError,
     )
+    from .pipeline import PipelineRunner as Runner
