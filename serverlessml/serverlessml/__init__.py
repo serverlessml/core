@@ -41,6 +41,7 @@ __all__ = [
     "ControllerIO",
     "Runner",
     "run_local",
+    "run_aws",
     "run_gcp",
 ]
 
@@ -57,6 +58,7 @@ with suppress(ImportError):
         PipelineConfigError,
         PipelineRunningError,
     )
+    from .handlers.aws.runner import run as run_aws
     from .handlers.gcp.runner import run as run_gcp
     from .handlers.local.runner import run as run_local
     from .pipeline import PipelineRunner as Runner
