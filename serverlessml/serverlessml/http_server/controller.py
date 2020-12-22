@@ -44,7 +44,7 @@ class Endpoints:
         )
         return logging.getLogger(__name__)
 
-    def __init__(self, runner: Runner, payload_decoder: Optional[Callable]) -> None:
+    def __init__(self, runner: Runner, payload_decoder: Optional[Callable] = None) -> None:
         """Instantiates endpoints logic handlers.
 
         Args:

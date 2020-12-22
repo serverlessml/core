@@ -26,7 +26,7 @@ from contextlib import suppress
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-__version__ = "1.0"
+__version__ = "{_replace_version_}"
 
 __all__ = [
     "InitError",

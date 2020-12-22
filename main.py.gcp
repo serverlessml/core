@@ -17,12 +17,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""``serverlessml.handlers`` is the module with handlers per platform."""
+"""Core ServerlerssML Entry point to run on GCP.
+It requires a web server.
+"""
 
-from contextlib import suppress
+from os import getenv
+import sys
 
-__all__ = ["run_local", "run_gcp"]
+from serverlessml.handlers import run_gcp
 
-with suppress(ImportError):
-    from .gcp.runner import run as run_gcp
-    from .local.runner import run as run_local
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s.%(msecs)03d [%(levelname)-5s] [%(name)-12s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger("ServerlessML")
+
+    port: int = int(getenv("PORT", "8080"))
+
+    project_id: str = getenv("ML_PROJECT_ID", "")
+    if not project_id:
+        logger.error("Export ML_PROJECT_ID as envvar.")
+        sys.exit(1)
+
+    try:
+        run_gcp(project_id=project_id, port=port)
+    except Exception as ex:
+        logger.error(ex)

@@ -17,4 +17,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Core ServerlerssML Runner."""
+"""``serverlessml.handlers.local.runner`` is the module
+with the runner's logic to be executed in local env.
+"""
+
+from functools import partial
+
+from serverlessml import ControllerIO, Runner
+from serverlessml.http_server import Server
+
+
+def run(project_id: str, port: int) -> None:
+    """Contains the end-to-end logic to run pipelines.
+
+    Args:
+        project_id: Model project ID.
+        port: Port for the web-server to listen.
+    """
+    Server(runner=Runner(partial(ControllerIO, project_id=project_id, platform="local"))).run(
+        port=port
+    )
