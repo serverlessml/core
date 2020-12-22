@@ -39,7 +39,7 @@ repos:
         name: "Black"
         language: system
         pass_filenames: false
-        entry: black serverlessml model main.py.gcp main.py.local
+        entry: black serverlessml model main.py.gcp
         args: [--safe, --quiet, "--line-length=100", "--skip-string-normalization"]
       - id: legal
         name: "Licence check"

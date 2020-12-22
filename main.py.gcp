@@ -24,7 +24,21 @@ It requires a web server.
 from os import getenv
 import sys
 
-from serverlessml import run_gcp
+from serverlessml import run_gcp, run_local
+
+
+def parse_bool(inpt: str) -> bool:
+    """Parses str to bool.
+
+    Args:
+        inpt: Input string.
+
+    Return:
+        Bool.
+    """
+    if inpt.lower() in ("true", "t", "y", "yes", "1"):
+        return True
+    return False
 
 
 if __name__ == "__main__":
@@ -42,7 +56,13 @@ if __name__ == "__main__":
         logger.error("Export ML_PROJECT_ID as envvar.")
         sys.exit(1)
 
+    run_locally: bool = parse_bool(getenv("ML_RUN_LOCALLY", "N"))
+    if run_locally:
+        run = run_local
+    else:
+        run = run_gcp
+
     try:
-        run_gcp(project_id=project_id, port=port)
+        run(project_id=project_id, port=port)
     except Exception as ex:
         logger.error(ex)
