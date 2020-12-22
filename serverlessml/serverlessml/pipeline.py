@@ -41,7 +41,12 @@ class PipelineRunner:
 
     @property
     def _logger(self) -> logging.Logger:
-        return logging.getLogger(__name__)
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s.%(msecs)03d [%(levelname)-5s] [%(linenum)d] %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        return logging.getLogger(f"[PipelineRunner] project:{self.project_id} run:{self.run_id}")
 
     def _error(self, message: str) -> None:
         self._logger.error(message)
@@ -101,6 +106,7 @@ class PipelineRunner:
             raise InitError(message) from ex
 
         self.project_id = project_id
+        self.run_id = run_id
 
         self.validate = Validator()
         self.controller_io.save.status(status="SUBMITTED")
