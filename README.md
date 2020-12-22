@@ -2,7 +2,7 @@
 
 Core service for serverless ML training/serving
 
-## Modus Operanti
+## Modus Operandi
 
 ### Train
 
@@ -10,8 +10,8 @@ Core service for serverless ML training/serving
 
 ```javascript
     {
-        "code_hash": "codebase git hash",
         "run_id": String ("UUID4"),
+        "code_hash": String("SHA1"),
         "pipeline_config": {
             "data": {
                 "location": {
@@ -47,8 +47,8 @@ Core service for serverless ML training/serving
 ```javascript
     {
         "run_id": String ("UUID4"),
-        "train_id": String ("UUID4"),
         "pipeline_config": {
+            "train_id": String ("UUID4"),
             "data": {
                 "location": {
                     "source": "DATA/SAMPLE/LOCATION",
