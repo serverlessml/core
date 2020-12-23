@@ -20,7 +20,8 @@
 """Module to communicate to the local file system."""
 
 from gzip import open as gzip_open
-from os.path import exists
+from os import makedirs
+from os.path import dirname, exists, isdir
 from typing import Callable
 
 from serverlessml.controllers.io import AbstractClientStorage
@@ -29,7 +30,15 @@ from serverlessml.controllers.io import AbstractClientStorage
 class Client(AbstractClientStorage):
     """``Client`` loads/saves data from/to a local file."""
 
+    DIR_PATH = "/tmp"
+
     def _load(self, path: str) -> bytes:
+        path = f"{self.DIR_PATH}/path"
+
+        path_dir = dirname(path)
+        if not isdir(path_dir):
+            makedirs(path_dir)
+
         _reader: Callable = open
         if path.endswith(".gz"):
             _reader = gzip_open
@@ -37,6 +46,8 @@ class Client(AbstractClientStorage):
             return fread.read()
 
     def _save(self, data: bytes, path: str) -> None:
+        path = f"{self.DIR_PATH}/path"
+
         _writer: Callable = open
         if path.endswith(".gz"):
             _writer = gzip_open
