@@ -1,0 +1,24 @@
+GET http://0.0.0.0:8080/status
+
+###
+POST http://0.0.0.0:8080/train
+Accept: "application/json"
+
+{
+  "project_id": "0cba82ff-9790-454d-b7b9-22570e7ba28c",
+  "code_hash": "8c2f3d3c5dd853231c7429b099347d13c8bb2c37",
+  "run_id": "c77d0a32-2b29-47f6-9ac5-67a21f7953b9",
+  "pipeline_config":
+    {
+      "data": {
+        "location": {
+          "source": "s3://test/train.csv"
+        },
+        "prep_config": {}
+      },
+      "model": {
+        "hyperparameters": {},
+        "version": "test.v1"
+      }
+    }
+}
