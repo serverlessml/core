@@ -23,13 +23,12 @@ from pathlib import Path
 
 from setuptools import find_namespace_packages, setup  # type: ignore
 
-VERSION = "1.0"
-
 DIR = Path(__file__).parent
 REQUIREMENTS_BASE = (DIR / "requirements.txt").read_text().split("\n")[:-1]
+VERSION = (DIR / "../VERSION").read_text()
 
 REQUIREMENTS_AWS = ["boto3==1.16.36"]
-REQUIREMENTS_GCP = ["google-cloud-pubsub==1.7.0", "google-cloud-storage==1.30.0"]
+REQUIREMENTS_GCP = ["google-cloud-storage==1.30.0"]
 
 REQUIREMENTS = {
     "all": [*REQUIREMENTS_BASE, *REQUIREMENTS_AWS, *REQUIREMENTS_GCP],
