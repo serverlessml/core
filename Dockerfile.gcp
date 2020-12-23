@@ -19,7 +19,6 @@ RUN rm -rf /app \
     /usr/share/doc \
     /usr/share/doc-base
 
-ENV ML_PROJECT_ID "project"
 ENV ML_RUN_LOCALLY "N"
 ENV PORT 8000
 
