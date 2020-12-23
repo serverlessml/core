@@ -1,0 +1,27 @@
+FROM public.ecr.aws/lambda/python:3.8 AS base
+
+LABEL maintener="Dmitry Kisler"
+LABEL email="admin@dkisler.com"
+LABEL web="www.serverlessml.org"
+
+WORKDIR /app
+
+COPY . .
+COPY main.py.aws /main.py
+
+RUN pip install pip==20.3 --upgrade \
+    && pip install './serverlessml[aws]' --no-cache-dir
+
+RUN rm -rf /app \
+    /tmp/* \
+    /var/tmp/* \
+    /usr/share/man \
+    /usr/share/doc \
+    /usr/share/doc-base
+
+ENV ML_RUN_LOCALLY "N"
+ENV PORT 8000
+
+EXPOSE ${PORT}
+
+CMD [ "main.handler" ]
