@@ -27,20 +27,6 @@ import sys
 from serverlessml import run_gcp, run_local
 
 
-def parse_bool(inpt: str) -> bool:
-    """Parses str to bool.
-
-    Args:
-        inpt: Input string.
-
-    Return:
-        Bool.
-    """
-    if inpt.lower() in ("true", "t", "y", "yes", "1"):
-        return True
-    return False
-
-
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
@@ -56,7 +42,9 @@ if __name__ == "__main__":
         logger.error("Export ML_PROJECT_ID as envvar.")
         sys.exit(1)
 
-    run_locally: bool = parse_bool(getenv("ML_RUN_LOCALLY", "N"))
+    run_locally: bool = (
+        True if getenv("ML_RUN_LOCALLY", "N") in ("true", "t", "y", "yes", "1") else False
+    )
     if run_locally:
         run = run_local
     else:
