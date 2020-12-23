@@ -10,7 +10,8 @@ Core service for serverless ML training/serving
 
 ```javascript
     {
-        "run_id": String ("UUID4"),
+        "project_id": String ("UUID4, ML project ID"),
+        "run_id": String ("UUID4, ML experiment ID"),
         "code_hash": String("SHA1"),
         "pipeline_config": {
             "data": {
@@ -46,9 +47,10 @@ Core service for serverless ML training/serving
 
 ```javascript
     {
-        "run_id": String ("UUID4"),
+        "project_id": String ("UUID4, ML project ID"),
+        "run_id": String ("UUID4, pipeline run ID"),
         "pipeline_config": {
-            "train_id": String ("UUID4"),
+            "train_id": String ("UUID4, ML experiment ID"),
             "data": {
                 "location": {
                     "source": "DATA/SAMPLE/LOCATION",

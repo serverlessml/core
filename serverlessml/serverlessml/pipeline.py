@@ -57,17 +57,18 @@ class PipelineRunner:
         self.validate = Validator()
         self.controller_io: ControllerIO = None  # type: ignore
 
-    def _instantiate_io_controller(self, run_id: str) -> None:
+    def _instantiate_io_controller(self, project_id: str, run_id: str) -> None:
         """Instantiates IO controller using run_id to map artifacts to the storage location.
 
         Args:
+            project_id: Model project ID.
             run_id: Experiment/run ID.
 
         Raises:
             InitError: When a client couldn't be instantiated.
         """
         try:
-            self.controller_io = self.controller_io_factory(run_id=run_id)
+            self.controller_io = self.controller_io_factory(project_id=project_id, run_id=run_id)
         except Exception as ex:
             message = f"IO Controller error: {ex}"
             self._logger.error(message)
@@ -122,7 +123,9 @@ class PipelineRunner:
         except PipelineConfigError as ex:
             self._error(f"Faulty config submitted: {ex}")
 
-        self._instantiate_io_controller(config.get("run_id", None))
+        self._instantiate_io_controller(
+            project_id=config.get("project_id", None), run_id=config.get("run_id", None)
+        )
 
         self.controller_io.save.status(status="RUNNING")
         self.controller_io.save.run_type(run_type="train")
@@ -170,7 +173,9 @@ class PipelineRunner:
         except PipelineConfigError as ex:
             self._error(f"Faulty config submitted: {ex}")
 
-        self._instantiate_io_controller(config.get("run_id", None))
+        self._instantiate_io_controller(
+            project_id=config.get("project_id", None), run_id=config.get("run_id", None)
+        )
 
         self.controller_io.save.status(status="RUNNING")
         self.controller_io.save.run_type(run_type="predict")

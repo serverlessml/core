@@ -62,14 +62,13 @@ def extract_pubsub_payload(event: dict) -> Dict[str, Any]:
     return json.loads(base64.b64decode(pubsub_message["data"]).decode("utf-8"))
 
 
-def run(project_id: str, port: int) -> None:
+def run(port: int) -> None:
     """Contains the end-to-end logic to run pipelines.
 
     Args:
-        project_id: Model project ID.
         port: Port for the web-server to listen.
     """
     Server(
-        runner=Runner(partial(ControllerIO, project_id=project_id, platform="gcp")),
+        runner=Runner(partial(ControllerIO, platform="gcp")),
         payload_decoder=extract_pubsub_payload,
     ).run(port=port)

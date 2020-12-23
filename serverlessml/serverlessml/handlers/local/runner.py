@@ -27,13 +27,10 @@ from serverlessml import ControllerIO, Runner
 from serverlessml.http_server import Server
 
 
-def run(project_id: str, port: int) -> None:
+def run(port: int) -> None:
     """Contains the end-to-end logic to run pipelines.
 
     Args:
-        project_id: Model project ID.
         port: Port for the web-server to listen.
     """
-    Server(runner=Runner(partial(ControllerIO, project_id=project_id, platform="local"))).run(
-        port=port
-    )
+    Server(runner=Runner(partial(ControllerIO, platform="local"))).run(port=port)

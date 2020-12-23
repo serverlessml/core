@@ -37,11 +37,6 @@ if __name__ == "__main__":
 
     port: int = int(getenv("PORT", "8080"))
 
-    project_id: str = getenv("ML_PROJECT_ID", "")
-    if not project_id:
-        logger.error("Export ML_PROJECT_ID as envvar.")
-        sys.exit(1)
-
     run_locally: bool = (
         True if getenv("ML_RUN_LOCALLY", "N") in ("true", "t", "y", "yes", "1") else False
     )
@@ -51,6 +46,6 @@ if __name__ == "__main__":
         run = run_gcp
 
     try:
-        run(project_id=project_id, port=port)
+        run(port=port)
     except Exception as ex:
         logger.error(ex)
