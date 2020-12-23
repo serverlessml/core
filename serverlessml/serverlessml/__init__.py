@@ -21,10 +21,7 @@
 ML pipelines to train and serve models in public clouds.
 """
 
-import logging
 from contextlib import suppress
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __version__ = "{_replace_version_}"
 
@@ -61,4 +58,4 @@ with suppress(ImportError):
     from .handlers.aws.runner import run as run_aws
     from .handlers.gcp.runner import run as run_gcp
     from .handlers.local.runner import run as run_local
-    from .pipeline import PipelineRunner as Runner
+    from .pipeline import Runner

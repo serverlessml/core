@@ -27,15 +27,10 @@ from types import ModuleType
 from typing import Any, Callable, Dict, Optional
 
 from serverlessml.controllers import ControllerIO, Validator
-from serverlessml.errors import (
-    InitError,
-    ModelDefinitionError,
-    PipelineConfigError,
-    PipelineRunningError,
-)
+from serverlessml.errors import InitError, ModelDefinitionError, PipelineRunningError
 
 
-class PipelineRunner:
+class Runner:
     """``Runner`` executes ML pipeline."""
 
     @property
@@ -118,10 +113,8 @@ class PipelineRunner:
             ModelDefinitionError: When underlying model's class failed to be instantiated.
         """
         self._logger.debug("Running train pipeline.")
-        try:
-            self.validate.train(config)
-        except PipelineConfigError as ex:
-            self._error(f"Faulty config submitted: {ex}")
+
+        self.validate.train(config)
 
         self._instantiate_io_controller(
             project_id=config.get("project_id", None), run_id=config.get("run_id", None)
@@ -168,10 +161,8 @@ class PipelineRunner:
             PipelineRunningError: When pipeline failed.
         """
         self._logger.debug("Running prediction pipeline.")
-        try:
-            self.validate.predict(config)
-        except PipelineConfigError as ex:
-            self._error(f"Faulty config submitted: {ex}")
+
+        self.validate.predict(config)
 
         self._instantiate_io_controller(
             project_id=config.get("project_id", None), run_id=config.get("run_id", None)
