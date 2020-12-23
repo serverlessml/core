@@ -24,21 +24,8 @@ It requires a web server.
 from os import getenv
 import sys
 
-from serverlessml import run_aws, run_local
-
-
-def parse_bool(inpt: str) -> bool:
-    """Parses str to bool.
-
-    Args:
-        inpt: Input string.
-
-    Return:
-        Bool.
-    """
-    if inpt.lower() in ("true", "t", "y", "yes", "1"):
-        return True
-    return False
+from serverlessml import run_aws as handler
+from serverlessml import run_local
 
 
 if __name__ == "__main__":
@@ -51,18 +38,13 @@ if __name__ == "__main__":
 
     port: int = int(getenv("PORT", "8080"))
 
-    project_id: str = getenv("ML_PROJECT_ID", "")
-    if not project_id:
-        logger.error("Export ML_PROJECT_ID as envvar.")
-        sys.exit(1)
-
-    run_locally: bool = parse_bool(getenv("ML_RUN_LOCALLY", "N"))
+    run_locally: bool = (
+        True if getenv("ML_RUN_LOCALLY", "N") in ("true", "t", "y", "yes", "1") else False
+    )
     if run_locally:
-        run = run_local
+        try:
+            run_local(project_id=project_id, port=port)
+        except Exception as ex:
+            logger.error(ex)
     else:
-        run = run_aws
-
-    try:
-        run(project_id=project_id, port=port)
-    except Exception as ex:
-        logger.error(ex)
+        sys.exit(0)
