@@ -35,10 +35,6 @@ class Client(AbstractClientStorage):
     def _load(self, path: str) -> bytes:
         path = f"{self.DIR_PATH}/{path}"
 
-        path_dir = dirname(path)
-        if not isdir(path_dir):
-            makedirs(path_dir)
-
         _reader: Callable = open
         if path.endswith(".gz"):
             _reader = gzip_open
@@ -47,6 +43,10 @@ class Client(AbstractClientStorage):
 
     def _save(self, data: bytes, path: str) -> None:
         path = f"{self.DIR_PATH}/{path}"
+
+        path_dir = dirname(path)
+        if not isdir(path_dir):
+            makedirs(path_dir)
 
         _writer: Callable = open
         if path.endswith(".gz"):

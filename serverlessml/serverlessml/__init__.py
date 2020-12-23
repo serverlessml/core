@@ -55,7 +55,9 @@ with suppress(ImportError):
         PipelineConfigError,
         PipelineRunningError,
     )
+    from .pipeline import Runner
+
+with suppress(ImportError):
     from .handlers.aws.runner import run as run_aws
     from .handlers.gcp.runner import run as run_gcp
     from .handlers.local.runner import run as run_local
-    from .pipeline import Runner
