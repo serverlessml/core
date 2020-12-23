@@ -123,8 +123,6 @@ class AbstractClientStorage(ABC):
 
         try:
             return self._load(path)
-        except ClientStorageError:
-            raise
         except Exception as ex:
             message = f"Failed while loading data from data set {str(self)}.\n{str(ex)}"
             raise ClientStorageError(message) from ex
@@ -153,8 +151,6 @@ class AbstractClientStorage(ABC):
 
         try:
             self._save(data, path)
-        except ClientStorageError:
-            raise
         except Exception as ex:
             message = f"Failed while saving data to data set {str(self)}.\n{str(ex)}"
             raise ClientStorageError(message) from ex
