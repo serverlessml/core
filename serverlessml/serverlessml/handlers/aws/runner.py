@@ -56,9 +56,7 @@ def run(event: Dict[str, Any], context: Any) -> None:  # pylint: disable=unused-
         sys.exit(1)
 
     try:
-        runner = Runner(
-            partial(ControllerIO, project_id=payload.get("project_id", ""), platform="aws")
-        )
+        runner = Runner(partial(ControllerIO, platform="aws"))
         if topic.endswith("train"):
             runner.train(payload)
         elif topic.endswith("predict"):

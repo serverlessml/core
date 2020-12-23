@@ -83,7 +83,7 @@ class Endpoints:
             return empty(422)
         except (PipelineRunningError, ModelDefinitionError) as ex:
             self._logger.error(ex)
-            return empty(504)
+            return empty(500)
         except Exception as ex:
             return empty(int(str(ex)))
         return empty(200)
@@ -98,7 +98,7 @@ class Endpoints:
             return empty(422)
         except (PipelineRunningError, ModelDefinitionError) as ex:
             self._logger.error(ex)
-            return empty(504)
+            return empty(500)
         except Exception as ex:
             return empty(int(str(ex)))
         return empty(200)
