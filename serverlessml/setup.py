@@ -25,7 +25,7 @@ from setuptools import find_namespace_packages, setup  # type: ignore
 
 DIR = Path(__file__).parent
 REQUIREMENTS_BASE = (DIR / "requirements.txt").read_text().split("\n")[:-1]
-VERSION = (DIR / "../VERSION").read_text()
+VERSION = (DIR / "VERSION").read_text().split("\n")[0]
 
 REQUIREMENTS_AWS = ["boto3==1.16.36"]
 REQUIREMENTS_GCP = ["google-cloud-storage==1.30.0"]
