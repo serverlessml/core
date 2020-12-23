@@ -107,12 +107,10 @@ schema_train = {
     "type": "object",
     "title": "Train trigger config schema.",
     "additionalProperties": False,
-    "required": ["run_id", "code_hash", "pipeline_config"],
+    "required": ["run_id", "project_id", "code_hash", "pipeline_config"],
     "properties": {
-        "run_id": {
-            "description": "Modelling run ID.",
-            "$ref": "#/definitions/uuid4",
-        },
+        "project_id": {"description": "ML project ID.", "$ref": "#/definitions/uuid4"},
+        "run_id": {"description": "Modelling run ID.", "$ref": "#/definitions/uuid4"},
         "code_hash": {
             "description": "Codebase (git commit) SHA1 hash value.",
             "type": "string",
@@ -162,8 +160,9 @@ schema_predict = {
     "type": "object",
     "title": "Prediction trigger config schema.",
     "additionalProperties": False,
-    "required": ["run_id", "pipeline_config"],
+    "required": ["project_id", "run_id", "pipeline_config"],
     "properties": {
+        "project_id": {"description": "ML project ID.", "$ref": "#/definitions/uuid4"},
         "run_id": {"description": "Modelling run ID.", "$ref": "#/definitions/uuid4"},
         "pipeline_config": {
             "description": "ML pipeline configuration for prediction.",
