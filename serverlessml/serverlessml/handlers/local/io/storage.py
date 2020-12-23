@@ -33,7 +33,7 @@ class Client(AbstractClientStorage):
     DIR_PATH = "/tmp"
 
     def _load(self, path: str) -> bytes:
-        path = f"{self.DIR_PATH}/path"
+        path = f"{self.DIR_PATH}/{path}"
 
         path_dir = dirname(path)
         if not isdir(path_dir):
@@ -46,7 +46,7 @@ class Client(AbstractClientStorage):
             return fread.read()
 
     def _save(self, data: bytes, path: str) -> None:
-        path = f"{self.DIR_PATH}/path"
+        path = f"{self.DIR_PATH}/{path}"
 
         _writer: Callable = open
         if path.endswith(".gz"):
