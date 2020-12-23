@@ -21,6 +21,7 @@
 It requires a web server.
 """
 
+import logging
 from os import getenv
 import sys
 
@@ -43,7 +44,7 @@ if __name__ == "__main__":
     )
     if run_locally:
         try:
-            run_local(project_id=project_id, port=port)
+            run_local(port=port)
         except Exception as ex:
             logger.error(ex)
     else:

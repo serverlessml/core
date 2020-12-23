@@ -21,6 +21,7 @@
 It requires a web server.
 """
 
+import logging
 from os import getenv
 import sys
 
