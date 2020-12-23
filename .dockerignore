@@ -7,5 +7,7 @@ LICENSE
 .vscode
 *.sh
 .github
-tools/**
+tools
+model
 .env
+test*

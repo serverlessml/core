@@ -5,39 +5,61 @@ SHELL=/bin/bash
 
 rebuild: build push
 
-test-run: build run
+.PHONY: build run push \
+	run-gcp run-gcp-local \
+	run-aws run-aws-local
 
-.PHONY: build run push
 
 REGISTRY := slessml
-SERVICE := core
-VER := `cat VERSION`
-PROJECT_ID := kedro-01
-TOPIC_PREFIX := trigger_
+VER := `cat ./serverlessml/VERSION`
 PLATFORM := gcp
+PY_VER := 3.8
+SERVICE := core-$(PLATFORM)-py$(PY_VER)
 BG := -d --name=core-$(PLATFORM)
-
-test:
 
 build:
 	@docker build \
 		-t ${REGISTRY}/${SERVICE}:${VER} \
+		--build-arg PY_VER=$(PY_VER) \
 		-f ./Dockerfile.$(PLATFORM) .
 
 push:
 	@docker push ${REGISTRY}/${SERVICE}:${VER}
 
-run:
+run-gcp-local:
+	@docker run $(BG) \
+		-p 8080:8080 \
+		-v /tmp:/tmp \
+		-e ML_RUN_LOCALLY=Y \
+		-t ${REGISTRY}/${SERVICE}:${VER}
+
+run-gcp:
 	@docker run $(BG) \
 		-p 8080:8080 \
 		-v ${HOME}/projects/secrets/infra/gcp/key-pubsub.json:/key.json \
+		-v /tmp:/tmp \
 		-e GOOGLE_APPLICATION_CREDENTIALS=/key.json \
-		-e PROJECT_ID=${PROJECT_ID} \
-		-e TOPIC_PREFIX=${TOPIC_PREFIX} \
+		-e ML_RUN_LOCALLY=N \
+		-t ${REGISTRY}/${SERVICE}:${VER}
+
+run-aws-local:
+	@docker run $(BG) \
+		-p 8080:8080 \
+		-v /tmp:/tmp \
+		-e ML_RUN_LOCALLY=Y \
+		-t ${REGISTRY}/${SERVICE}:${VER}
+
+run-aws:
+	@docker run $(BG) \
+		-p 8080:8080 \
+		-v /tmp:/tmp \
+		-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+		-e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+		-e ML_RUN_LOCALLY=N \
 		-t ${REGISTRY}/${SERVICE}:${VER}
 
 rm:
-	@docker rm -f core-gcp
+	@docker rm -f core-$(PLATFORM)
 
 coverage-bump:
 	@./tools/coverage_bump.py
