@@ -47,5 +47,5 @@ ENV PORT 8000
 
 EXPOSE ${PORT}
 
-ENTRYPOINT [ "python", "-m", "awslambdaric" ]
+ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
 CMD [ "main.handler" ]
