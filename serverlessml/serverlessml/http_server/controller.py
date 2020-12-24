@@ -21,7 +21,7 @@
 with the logic defining http server endpoints.
 """
 
-import logging
+from logging import Logger
 from typing import Any, Callable, Dict, Optional
 
 from sanic import Sanic  # type: ignore
@@ -29,6 +29,7 @@ from sanic.request import Request  # type: ignore
 from sanic.response import HTTPResponse, empty  # type: ignore
 
 from serverlessml import Runner
+from serverlessml.controllers import get_logger
 from serverlessml.errors import ModelDefinitionError, PipelineConfigError, PipelineRunningError
 
 
@@ -36,13 +37,8 @@ class Endpoints:
     """``Endpoints`` defines HTTP server endpoints logic."""
 
     @property
-    def _logger(self) -> logging.Logger:
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s.%(msecs)03d [%(levelname)-5s] [%(linenum)d] %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-        return logging.getLogger(__name__)
+    def _logger(self) -> Logger:
+        return get_logger(name=__name__)
 
     def __init__(self, runner: Runner, payload_decoder: Optional[Callable] = None) -> None:
         """Instantiates endpoints logic handlers.
@@ -64,7 +60,7 @@ class Endpoints:
             try:
                 return self.payload_decoder(payload)
             except (KeyError, TypeError) as ex:
-                self._logger.error(ex)
+                self._logger.error({"error": ex, "payload": payload})
                 raise Exception("422") from ex
         return payload
 
@@ -79,12 +75,13 @@ class Endpoints:
             payload = self._extract_payload(request)
             self.runner.train(payload)
         except PipelineConfigError as ex:
-            self._logger.error(ex)
+            self._logger.error({"error": ex, "payload": payload})
             return empty(422)
         except (PipelineRunningError, ModelDefinitionError) as ex:
-            self._logger.error(ex)
+            self._logger.error({"error": ex, "run_id": payload.get("run_id"), "payload": payload})
             return empty(500)
         except Exception as ex:
+            self._logger.error({"error": ex, "run_id": payload.get("run_id"), "payload": payload})
             return empty(int(str(ex)))
         return empty(200)
 
@@ -94,12 +91,13 @@ class Endpoints:
             payload = self._extract_payload(request)
             self.runner.predict(payload)
         except PipelineConfigError as ex:
-            self._logger.error(ex)
+            self._logger.error({"error": ex, "payload": payload})
             return empty(422)
         except (PipelineRunningError, ModelDefinitionError) as ex:
-            self._logger.error(ex)
+            self._logger.error({"error": ex, "run_id": payload.get("run_id"), "payload": payload})
             return empty(500)
         except Exception as ex:
+            self._logger.error({"error": ex, "run_id": payload.get("run_id"), "payload": payload})
             return empty(int(str(ex)))
         return empty(200)
 

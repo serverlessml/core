@@ -22,12 +22,12 @@ with the runner's logic to be executed on AWS.
 """
 
 import json
-import logging
 import sys
 from functools import partial
 from typing import Any, Dict
 
 from serverlessml import ControllerIO, Runner
+from serverlessml.controllers import get_logger
 from serverlessml.errors import ModelDefinitionError, PipelineConfigError, PipelineRunningError
 
 
@@ -38,13 +38,7 @@ def run(event: Dict[str, Any], context: Any) -> None:  # pylint: disable=unused-
         event: AWS lambda event object.
         context: AWS lambda context.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s.%(msecs)03d [%(levelname)-5s] [%(linenum)d] %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-    log = logging.getLogger(__name__)
-    log.debug("Invoke serverlessML pipeline with %s", __name__)
+    log = get_logger(__name__)
 
     record: Dict[str, Any] = event["Records"][0]["Sns"]
     topic: str = record["TopicArn"]
@@ -52,7 +46,7 @@ def run(event: Dict[str, Any], context: Any) -> None:  # pylint: disable=unused-
     try:
         payload: Dict[str, Any] = json.loads(record["Message"])
     except json.JSONDecodeError as ex:
-        log.error(ex)
+        log.error({"error": ex, "payload": record["Message"]})
         sys.exit(1)
 
     try:
@@ -62,10 +56,22 @@ def run(event: Dict[str, Any], context: Any) -> None:  # pylint: disable=unused-
         elif topic.endswith("predict"):
             runner.predict(payload)
         else:
-            log.error("Triggered by the wrong topic.")
+            log.error(
+                {
+                    "error": f"Triggered by the wrong topic: {topic}",
+                    "run_id": payload.get("run_id"),
+                    "payload": payload,
+                }
+            )
             sys.exit(1)
     except (ModelDefinitionError, PipelineConfigError, PipelineRunningError) as ex:
-        log.error(ex)
+        log.error(
+            {
+                "error": ex,
+                "run_id": payload.get("run_id"),
+                "payload": payload,
+            }
+        )
         sys.exit(1)
 
     log.debug("Done")
