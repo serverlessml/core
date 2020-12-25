@@ -37,8 +37,5 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build image
-        run: make build PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
-
-      - name: Push image to the repo
-        run: make push
+      - name: Rebuild image
+        run: make rebuild PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
