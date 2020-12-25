@@ -23,8 +23,9 @@ with the runner's logic to be executed in local env.
 
 from functools import partial
 
-from serverlessml import ControllerIO, Runner
+from serverlessml.controllers import ControllerIO
 from serverlessml.http_server import Server
+from serverlessml.pipeline import Runner
 
 
 def run(port: int) -> None:

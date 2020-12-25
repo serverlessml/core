@@ -26,9 +26,9 @@ import sys
 from functools import partial
 from typing import Any, Dict
 
-from serverlessml import ControllerIO, Runner
-from serverlessml.controllers import get_logger
+from serverlessml.controllers import ControllerIO, get_logger
 from serverlessml.errors import ModelDefinitionError, PipelineConfigError, PipelineRunningError
+from serverlessml.pipeline import Runner
 
 
 def run(event: Dict[str, Any], context: Any) -> None:  # pylint: disable=unused-argument

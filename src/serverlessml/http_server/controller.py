@@ -27,9 +27,9 @@ from sanic import Sanic  # type: ignore
 from sanic.request import Request  # type: ignore
 from sanic.response import HTTPResponse, empty  # type: ignore
 
-from serverlessml import Runner
 from serverlessml.controllers import get_logger
 from serverlessml.errors import ModelDefinitionError, PipelineConfigError, PipelineRunningError
+from serverlessml.pipeline import Runner
 
 
 class Endpoints:

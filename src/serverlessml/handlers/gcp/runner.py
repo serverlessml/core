@@ -26,8 +26,9 @@ import json
 from functools import partial
 from typing import Any, Dict
 
-from serverlessml import ControllerIO, Runner
+from serverlessml.controllers import ControllerIO
 from serverlessml.http_server import Server
+from serverlessml.pipeline import Runner
 
 
 def extract_pubsub_payload(event: dict) -> Dict[str, Any]:

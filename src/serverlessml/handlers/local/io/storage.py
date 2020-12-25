@@ -25,6 +25,7 @@ from os.path import dirname, exists, isdir
 from typing import Callable
 
 from serverlessml.controllers.io import AbstractClientStorage
+from serverlessml.errors import ClientStorageError
 
 
 class Client(AbstractClientStorage):
@@ -38,21 +39,29 @@ class Client(AbstractClientStorage):
         _reader: Callable = open
         if path.endswith(".gz"):
             _reader = gzip_open
-        with _reader(path, "rb") as fread:
-            return fread.read()
+
+        try:
+            with _reader(path, "rb") as fread:
+                return fread.read()
+        except (FileExistsError, IOError, PermissionError) as ex:
+            raise ClientStorageError(ex) from ex
 
     def _save(self, data: bytes, path: str) -> None:
         path = f"{self.DIR_PATH}/{path}"
 
-        path_dir = dirname(path)
-        if not isdir(path_dir):
-            makedirs(path_dir)
-
         _writer: Callable = open
         if path.endswith(".gz"):
             _writer = gzip_open
-        with _writer(path, "wb") as fwrite:
-            fwrite.write(data)
+
+        path_dir = dirname(path)
+        try:
+            if not isdir(path_dir):
+                makedirs(path_dir)
+
+            with _writer(path, "wb") as fwrite:
+                fwrite.write(data)
+        except (FileExistsError, IOError, PermissionError) as ex:
+            raise ClientStorageError(ex) from ex
 
     def _exists(self, path: str) -> bool:
         return exists(path)
