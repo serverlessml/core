@@ -11,6 +11,7 @@ on:
       - master
     types:
       - opened
+  workflow_dispatch:
 
 name: Build and push
 
