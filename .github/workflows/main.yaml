@@ -1,0 +1,43 @@
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "src/**"
+      - "Dockerfile*"
+      - "main.py.*"
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+
+name: Build and push
+
+jobs:
+  build-n-push:
+    strategy:
+      matrix:
+        pyver: [3.7, 3.8]
+        platform: [aws, gcp]
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_CLI_EXPERIMENTAL: "enabled"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Auth with docker hub
+        run: echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_USER}" --password-stdin
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build image
+        run: make build PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
+
+      - name: Push image to the repo
+        run: make push
