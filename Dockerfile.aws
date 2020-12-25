@@ -31,7 +31,7 @@ COPY main.py.aws /main.py
 
 RUN pip install pip==20.3 --upgrade \
     && pip install --target / awslambdaric \
-    && pip install './serverlessml[aws]' --no-cache-dir
+    && pip install './src[aws]' --no-cache-dir
 
 WORKDIR /
 

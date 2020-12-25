@@ -30,7 +30,7 @@ COPY . .
 COPY main.py.gcp /main.py
 
 RUN pip install pip==20.3 --upgrade \
-    && pip install './serverlessml[gcp]' --no-cache-dir
+    && pip install './src[gcp]' --no-cache-dir
 
 WORKDIR /
 

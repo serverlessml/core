@@ -11,7 +11,7 @@ rebuild: build push
 
 
 REGISTRY := slessml
-VER := `cat ./serverlessml/VERSION`
+VER := `cat ./src/VERSION`
 PLATFORM := gcp
 PY_VER := 3.8
 SERVICE := core-$(PLATFORM)-py$(PY_VER)
