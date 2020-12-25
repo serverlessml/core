@@ -21,7 +21,6 @@
 with the logic defining http server endpoints.
 """
 
-from logging import Logger
 from typing import Any, Callable, Dict, Optional
 
 from sanic import Sanic  # type: ignore
@@ -36,10 +35,6 @@ from serverlessml.errors import ModelDefinitionError, PipelineConfigError, Pipel
 class Endpoints:
     """``Endpoints`` defines HTTP server endpoints logic."""
 
-    @property
-    def _logger(self) -> Logger:
-        return get_logger(name=__name__)
-
     def __init__(self, runner: Runner, payload_decoder: Optional[Callable] = None) -> None:
         """Instantiates endpoints logic handlers.
 
@@ -49,6 +44,7 @@ class Endpoints:
         """
         self.runner = runner
         self.payload_decoder = payload_decoder
+        self._logger = get_logger(name=__name__)
 
     def _extract_payload(self, request: Request) -> Dict[str, Any]:
         payload: Dict[str, Any] = request.json
@@ -60,7 +56,7 @@ class Endpoints:
             try:
                 return self.payload_decoder(payload)
             except (KeyError, TypeError) as ex:
-                self._logger.error({"error": ex, "payload": payload})
+                self._logger.error({"error": str(ex), "payload": payload})
                 raise Exception("422") from ex
         return payload
 
@@ -73,39 +69,49 @@ class Endpoints:
         """Resolves requests for to execute train pipelines."""
         try:
             payload = self._extract_payload(request)
+        except Exception as ex:
+            return empty(int(str(ex)))
+
+        try:
             self.runner.train(payload)
         except PipelineConfigError as ex:
-            self._logger.error({"error": ex, "payload": payload})
+            self._logger.error(
+                {"error": str(ex), "run_id": payload.get("run_id"), "payload": payload}
+            )
             return empty(422)
         except (PipelineRunningError, ModelDefinitionError) as ex:
-            self._logger.error({"error": ex, "run_id": payload.get("run_id"), "payload": payload})
+            self._logger.error(
+                {"error": str(ex), "run_id": payload.get("run_id"), "payload": payload}
+            )
             return empty(500)
-        except Exception as ex:
-            self._logger.error({"error": ex, "run_id": payload.get("run_id"), "payload": payload})
-            return empty(int(str(ex)))
         return empty(200)
 
     def endpoint_predict(self, request: Request) -> HTTPResponse:
         """Resolves requests for to execute train pipelines."""
         try:
             payload = self._extract_payload(request)
+        except Exception as ex:
+            return empty(int(str(ex)))
+
+        try:
             self.runner.predict(payload)
         except PipelineConfigError as ex:
-            self._logger.error({"error": ex, "payload": payload})
+            self._logger.error(
+                {"error": str(ex), "run_id": payload.get("run_id"), "payload": payload}
+            )
             return empty(422)
         except (PipelineRunningError, ModelDefinitionError) as ex:
-            self._logger.error({"error": ex, "run_id": payload.get("run_id"), "payload": payload})
+            self._logger.error(
+                {"error": str(ex), "run_id": payload.get("run_id"), "payload": payload}
+            )
             return empty(500)
-        except Exception as ex:
-            self._logger.error({"error": ex, "run_id": payload.get("run_id"), "payload": payload})
-            return empty(int(str(ex)))
         return empty(200)
 
 
 class Server(Endpoints):
     """``Server`` launches HTTP server."""
 
-    def run(self, port: int = 8000) -> None:
+    def run(self, port: int = 8080) -> None:
         """Launches the http server.
 
         Args:

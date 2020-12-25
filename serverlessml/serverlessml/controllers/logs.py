@@ -74,5 +74,9 @@ def get_logger(name: Optional[str] = __name__, request_id: Optional[str] = None)
     json_handler.setFormatter(LogsFormatter(request_id=request_id))
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
+
+    for hdl in logger.handlers:
+        logger.removeHandler(hdl)
+
     logger.addHandler(json_handler)
     return logger

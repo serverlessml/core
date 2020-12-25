@@ -47,7 +47,9 @@ run-aws-local:
 		-p 8080:8080 \
 		-v /tmp:/tmp \
 		-e ML_RUN_LOCALLY=Y \
-		-t ${REGISTRY}/${SERVICE}:${VER}
+		--entrypoint python \
+		-t ${REGISTRY}/${SERVICE}:${VER} \
+		/main.py
 
 run-aws:
 	@docker run $(BG) \

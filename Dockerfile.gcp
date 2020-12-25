@@ -44,7 +44,7 @@ RUN rm -rf /app \
 
 ENV ML_RUN_LOCALLY "N"
 
-ENV PORT 8000
+ENV PORT "8080"
 EXPOSE ${PORT}
 
 ENTRYPOINT [ "python", "main.py" ]

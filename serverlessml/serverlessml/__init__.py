@@ -21,7 +21,10 @@
 ML pipelines to train and serve models in public clouds.
 """
 
+import logging
 from contextlib import suppress
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __version__ = "{_replace_version_}"
 
