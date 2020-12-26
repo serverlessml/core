@@ -52,7 +52,6 @@ class Model(ABC):
         self.config: Dict[str, Any] = config
         self.model: Model = self.load(model_obj) if model_obj else self.model_definition(config)
 
-    @abstractmethod
     def model_definition(self, config: Dict[str, Any]) -> "Model":
         """Function to define and compile the model.
 
@@ -81,11 +80,14 @@ class Model(ABC):
             "it must implement the `_model_definition` method"
         )
 
-    def fit(self, data: Union[Any, Tuple[Any]]) -> None:
+    def fit(self, data: Union[Any, Tuple[Any]], target: Union[Any, Tuple[Any]]) -> None:
         """Trains the model.
 
         Args:
-            data: Data object(s), shall match the output of the ``DataPreparation`` `run` method.
+            data: Dataset of features object(s), i.e. train and test datasets.
+            target: Vector(s) of the target values, i.e. Y for train and for test.
+
+            Note! `data` and `target` hall match the output of the ``DataPreparation`` `run` method.
                 E.g. it can be the result of the train_test_split method
                 from `sklearn.model_selection.train_test_split`.
 
@@ -94,7 +96,7 @@ class Model(ABC):
         """
         self._logger.debug("Train the model with %s", str(self))
         try:
-            self._fit(data)
+            self._fit(data, target)
         except ModelTrainError:
             raise
         except Exception as ex:
@@ -102,7 +104,7 @@ class Model(ABC):
             raise ModelTrainError(message) from ex
 
     @abstractmethod
-    def _fit(self, data: Union[Any, Tuple[Any]]) -> None:
+    def _fit(self, data: Union[Any, Tuple[Any]], target: Union[Any, Tuple[Any]]) -> None:
         raise NotImplementedError(
             f"`{self.__class__.__name__}` is a subclass of Model and"
             "it must implement the `_train` method"
@@ -139,6 +141,35 @@ class Model(ABC):
         except Exception as ex:
             message = f"Model evaluation error {str(self)}.\n{str(ex)}"
             raise ModelTrainError(message) from ex
+
+    def train(
+        self, data: Union[Any, Tuple[Any]], target: Union[Any, Tuple[Any]]
+    ) -> Tuple[bytes, List[Dict[str, Any]]]:
+        """Method to perform model training cycle.
+
+        Args:
+            data: Data object(s), shall match the output of the ``DataPreparation`` `run` method.
+                E.g. it can be the result of the train_test_split method
+                from `sklearn.model_selection.train_test_split`.
+
+        Raises:
+            ModelTrainError: When underlying fit method raises exception.
+        """
+        self.fit(data, target)
+
+        if not isinstance(data, tuple):
+            data = tuple(
+                data,
+            )
+            target = tuple(
+                target,
+            )
+
+        # it's assumed that data is a tuple of object
+        # with the element 0 being "train", 1 being "test" data sets
+        score: List[Dict[str, Any]] = list(self.score(d, t) for d, t in zip(data, target))
+
+        return self.save(), score
 
     @abstractmethod
     def _evaluate(self, y_true: List[Any], y_pred: List[Any]) -> Dict[str, Any]:

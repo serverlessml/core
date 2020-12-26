@@ -131,7 +131,7 @@ class Runner:
 
         model_module = self._load_udm(model_cfg.get("version", ""))
 
-        output_metrics: Dict[str, Any] = {"elapsed": {}, "user_defined_metrics": {}}
+        output_metrics: Dict[str, Any] = {"elapsed": {}}
 
         elapsed_start = time.time()
         try:
@@ -143,7 +143,7 @@ class Runner:
 
         elapsed_start = time.time()
         try:
-            data_prep_output = model_module.DataPreparation(  # type: ignore
+            data, target = model_module.DataPreparation(  # type: ignore
                 config=data_cfg.get("prep_config")
             ).run(dataset=dataset)
         except Exception as ex:
@@ -157,12 +157,12 @@ class Runner:
         try:
             model, metrics = model_module.Model(  # type: ignore
                 model_cfg.get("hyperparameters")
-            ).run(data_prep_output)
+            ).train(data, target)
         except Exception as ex:
             self._error(f"Failed while running user defined model methods: {ex}")
         output_metrics["elapsed"]["train"] = time.time() - elapsed_start
 
-        output_metrics["user_defined_metrics"].update(metrics)
+        output_metrics["user_defined_metrics"] = metrics
 
         self.controller_io.save.model(model)
         self.controller_io.save.metrics(output_metrics)
