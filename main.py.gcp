@@ -39,7 +39,7 @@ if __name__ == "__main__":
     port: int = int(getenv("PORT", "8080"))
 
     run_locally: bool = (
-        True if getenv("ML_RUN_LOCALLY", "N") in ("true", "t", "y", "yes", "1") else False
+        True if getenv("ML_RUN_LOCALLY", "N").lower() in ("true", "t", "y", "yes", "1") else False
     )
     if run_locally:
         run = run_local

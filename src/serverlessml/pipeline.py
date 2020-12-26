@@ -23,11 +23,17 @@ with the train and predict pipeline runner definition.
 
 import importlib
 import logging
+import time
 from types import ModuleType
 from typing import Any, Callable, Dict, Optional
 
 from serverlessml.controllers import ControllerIO, Validator
-from serverlessml.errors import InitError, ModelDefinitionError, PipelineRunningError
+from serverlessml.errors import (
+    DataProcessingError,
+    InitError,
+    ModelDefinitionError,
+    PipelineRunningError,
+)
 
 
 class Runner:
@@ -69,18 +75,18 @@ class Runner:
             self._logger.error(message)
             raise InitError(message) from ex
 
-    def _error(self, message: str) -> None:
+    def _error(self, message: str, exc: Any = None) -> None:
         self._logger.error(message)
         self.controller_io.save.status(status="FAILED", error=message)
-        raise PipelineRunningError(message)
+        if not exc:
+            exc = PipelineRunningError
+        raise exc(message)
 
-    def _load_pipeline_definition_module(
-        self, model_configs: Dict[str, Any]
-    ) -> Optional[ModuleType]:
-        """Loads module with the pipeline defintion.
+    def _load_udm(self, model_version: str) -> Optional[ModuleType]:
+        """Loads user defined module.
 
         Args:
-            model_configs: Model configurations.
+            model_version: Model version.
 
         Returns:
             Module with the user defined pipelines definitions.
@@ -89,16 +95,10 @@ class Runner:
             ModelDefinitionError: When underlying model's class failed to be instantiated.
         """
         try:
-            model_version: str = model_configs.get("version", "")
             model_package_name = ".".join(model_version.split(".")[:-1])
             udm = importlib.import_module(f"{model_version}.pipeline", model_package_name)
-        except ModelDefinitionError as ex:
-            message = str(ex)
-            self._logger.error(message)
-            self.controller_io.save.status(status="FAILED", error=message)
-            raise ex
         except Exception as ex:
-            self._error(f"Failed loading the model code: {ex}")
+            self._error(f"Failed loading the model code: {ex}", ModelDefinitionError)
         return udm
 
     def train(self, config: Dict[str, Any]) -> None:
@@ -110,6 +110,7 @@ class Runner:
         Raises:
             PipelineConfigError: When config failed validation.
             PipelineRunningError: When pipeline failed.
+            DataProcessingError: When data processing with the user-defined failed.
             ModelDefinitionError: When underlying model's class failed to be instantiated.
         """
         self._logger.debug("Running train pipeline.")
@@ -128,26 +129,43 @@ class Runner:
         model_cfg: Dict[str, Any] = pipeline_cfg.get("model", {})
         data_cfg: Dict[str, Any] = pipeline_cfg.get("data", {})
 
-        model_module = self._load_pipeline_definition_module(model_cfg)
+        model_module = self._load_udm(model_cfg.get("version", ""))
 
+        output_metrics: Dict[str, Any] = {"elapsed": {}, "user_defined_metrics": {}}
+
+        elapsed_start = time.time()
         try:
             path_data_source: str = data_cfg.get("location", {}).get("source", "")
             dataset = self.controller_io.load.data(path_data_source)
         except Exception as ex:
             self._error(f"Failed to load data: {ex}")
+        output_metrics["elapsed"]["data_read"] = time.time() - elapsed_start
 
+        elapsed_start = time.time()
         try:
-            pipeline = model_module.PipelineTrain(  # type: ignore
-                model_config=model_cfg.get("hyperparameters"),
-                data_config=data_cfg.get("prep_config"),
-                dataset=dataset,
-            )
-            model, metrics = next(pipeline.run())
+            data_prep_output = model_module.DataPreparation(  # type: ignore
+                config=data_cfg.get("prep_config")
+            ).run(dataset=dataset)
         except Exception as ex:
-            self._error(f"Failed while running user defined pipeline: {ex}")
+            self._error(
+                f"Failed while running user defined data preparation methods: {ex}",
+                DataProcessingError,
+            )
+        output_metrics["elapsed"]["data_prep"] = time.time() - elapsed_start
+
+        elapsed_start = time.time()
+        try:
+            model, metrics = model_module.Model(  # type: ignore
+                model_cfg.get("hyperparameters")
+            ).run(data_prep_output)
+        except Exception as ex:
+            self._error(f"Failed while running user defined model methods: {ex}")
+        output_metrics["elapsed"]["train"] = time.time() - elapsed_start
+
+        output_metrics["user_defined_metrics"].update(metrics)
 
         self.controller_io.save.model(model)
-        self.controller_io.save.metrics(metrics)
+        self.controller_io.save.metrics(output_metrics)
         self.controller_io.save.status(status="SUCCESS")
 
     def predict(self, config: Dict[str, Any]) -> None:
@@ -180,26 +198,29 @@ class Runner:
         pipeline_cfg_train: Dict[str, Any] = controller_io_train.load.metadata()
         model_cfg: Dict[str, Any] = pipeline_cfg_train.get("pipeline_config", {}).get("model", {})
 
+        model_module = self._load_udm(model_cfg.get("version", ""))
         model: bytes = controller_io_train.load.model()
-        model_module = self._load_pipeline_definition_module(model_cfg)
 
         data_cfg: Dict[str, Any] = pipeline_cfg.get("data", {})
         path_data_source: str = data_cfg.get("location", {}).get("source", "")
         path_data_destination: str = data_cfg.get("location", {}).get("destination", "")
 
+        output_metrics: Dict[str, Any] = {"elapsed": {}}
+
+        elapsed_start = time.time()
         try:
             dataset_in = self.controller_io.load.data(path_data_source)
         except Exception as ex:
             self._error(f"Failed to load data: {ex}")
+        output_metrics["elapsed"]["data_prep"] = time.time() - elapsed_start
 
+        elapsed_start = time.time()
         try:
-            pipeline = model_module.PipelinePredict(  # type: ignore
-                model=model,
-                dataset=dataset_in,
-            )
-            dataset_out = next(pipeline.run())
+            dataset_out = model_module.Model(model_obj=model).predict(dataset_in)  # type: ignore
         except Exception as ex:
-            self._error(f"Failed while running user defined pipeline: {ex}")
+            self._error(f"Failed while running prediction: {ex}")
+        output_metrics["elapsed"]["prediction"] = time.time() - elapsed_start
 
         self.controller_io.save.data(dataset_out, path=path_data_destination)
+        self.controller_io.save.metrics(output_metrics)
         self.controller_io.save.status(status="SUCCESS")
