@@ -48,6 +48,22 @@ class ModelDefinitionError(Exception):
     """Model instantiation error."""
 
 
+class ModelDeserializationError(Exception):
+    """Model deserialization/loading error."""
+
+
+class ModelSerializationError(Exception):
+    """Model serialization/saving error."""
+
+
+class ModelTrainError(Exception):
+    """Model training error."""
+
+
+class ModelPredictionError(Exception):
+    """Model prediction error."""
+
+
 class PipelineRunningError(Exception):
     """Pipeline running error."""
 
