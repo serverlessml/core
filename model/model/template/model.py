@@ -76,7 +76,7 @@ class Model(ABC):
     @abstractmethod
     def _model_definition(self, config: Dict[str, Any]) -> "Model":
         raise NotImplementedError(
-            f"`{self.__class__.__name__}` is a subclass of Model and"
+            f"`{self.__class__.__name__}` is a subclass of ``Model`` and"
             "it must implement the `_model_definition` method"
         )
 
@@ -106,7 +106,7 @@ class Model(ABC):
     @abstractmethod
     def _fit(self, data: Union[Any, Tuple[Any]], target: Union[Any, Tuple[Any]]) -> None:
         raise NotImplementedError(
-            f"`{self.__class__.__name__}` is a subclass of Model and"
+            f"`{self.__class__.__name__}` is a subclass of ``Model`` and"
             "it must implement the `_train` method"
         )
 
@@ -174,7 +174,7 @@ class Model(ABC):
     @abstractmethod
     def _evaluate(self, y_true: List[Any], y_pred: List[Any]) -> Dict[str, Any]:
         raise NotImplementedError(
-            f"`{self.__class__.__name__}` is a subclass of Model and"
+            f"`{self.__class__.__name__}` is a subclass of ``Model`` and"
             "it must implement the `_evaluate` method"
         )
 
@@ -202,7 +202,7 @@ class Model(ABC):
     @abstractmethod
     def _predict(self, X: Any) -> Any:
         raise NotImplementedError(
-            f"`{self.__class__.__name__}` is a subclass of Model and"
+            f"`{self.__class__.__name__}` is a subclass of ``Model`` and"
             "it must implement the `_predict` method"
         )
 
@@ -225,7 +225,7 @@ class Model(ABC):
     @abstractmethod
     def _save(self) -> bytes:
         raise NotImplementedError(
-            f"`{self.__class__.__name__}` is a subclass of Model and"
+            f"`{self.__class__.__name__}` is a subclass of ``Model`` and"
             "it must implement the `_save` method"
         )
 
@@ -247,6 +247,6 @@ class Model(ABC):
     @abstractmethod
     def _load(self, model_obj: bytes) -> "Model":
         raise NotImplementedError(
-            f"`{self.__class__.__name__}` is a subclass of Model and"
+            f"`{self.__class__.__name__}` is a subclass of ``Model`` and"
             "it must implement the `_load` method"
         )
