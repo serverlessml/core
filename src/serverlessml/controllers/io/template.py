@@ -21,80 +21,10 @@
 with the abstract classes templates for all IO clients.
 """
 
-import json
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict
 
-from serverlessml.errors import ClientBusError, ClientStorageError
-
-
-class AbstractClientBus(ABC):
-    """``AbstractClientBus`` is the base class for all message bus clients implementations.
-    All storage message brokers/bus clients implementations should extend this abstract class
-    and implement the methods marked as abstract.
-    """
-
-    @property
-    def _logger(self) -> logging.Logger:
-        return logging.getLogger(__name__)
-
-    def push(self, topic: str, payload: Dict[str, Any]) -> None:
-        """Publishes a message by delegation to the provided publish method.
-
-        Args:
-            topic: Message broker topic name to publish.
-            payload: Message content.
-
-        Raises:
-            ClientBusError: When underlying method raises exception.
-        """
-        self._logger.debug("Pushing message to to a topic %s with %s", topic, str(self))
-
-        if payload is None:
-            raise ClientBusError("Pushing `None` is not allowed")
-
-        try:
-            self._push(topic=topic, payload=payload)
-        except ClientBusError:
-            raise
-        except Exception as ex:
-            message = f"Failed to publish {json.dumps(payload)} to {topic} {str(self)}.\n{str(ex)}"
-            raise ClientBusError(message) from ex
-
-    @abstractmethod
-    def _push(self, topic: str, payload: Dict[str, Any]) -> None:
-        raise NotImplementedError(
-            f"`{self.__class__.__name__}` is a subclass of AbstractClientBus and"
-            "it must implement the `_push` method"
-        )
-
-    def get_topic_path(self, topic: str) -> str:
-        """Requests the full topic by delegation to the provided get_topic_path method..
-
-        Args:
-            topic: Message broker topic name to publish.
-
-        Returns:
-            Topic path.
-
-        Raises:
-            ClientBusError: When underlying method raises exception.
-        """
-        self._logger.debug("Requesting path to the topic %s with %s", topic, str(self))
-
-        try:
-            return self._get_topic_path(topic=topic)
-        except Exception as ex:
-            message = f"Failed to return path to the topic {topic} {str(self)}.\n{str(ex)}"
-            raise ClientBusError(message) from ex
-
-    @abstractmethod
-    def _get_topic_path(self, topic: str) -> str:
-        raise NotImplementedError(
-            f"`{self.__class__.__name__}` is a subclass of AbstractClientBus and"
-            "it must implement the `_get_topic_path` method"
-        )
+from serverlessml.errors import ClientStorageError
 
 
 class AbstractClientStorage(ABC):

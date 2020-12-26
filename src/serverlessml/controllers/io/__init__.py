@@ -19,14 +19,10 @@
 
 "``serverlessml.controllers.io`` is the module where all IO clients/controllers are defined."
 
-__all__ = [
-    "Controller",
-    "AbstractClientStorage",
-    "AbstractClientBus",
-]
-
 from contextlib import suppress
 
 with suppress(ImportError):
     from .controller import Controller
-    from .template import AbstractClientBus, AbstractClientStorage
+    from .template import AbstractClientStorage
+
+__all__ = ["Controller", "AbstractClientStorage"]
