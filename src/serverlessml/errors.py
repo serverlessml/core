@@ -40,6 +40,10 @@ class DataEncodingError(Exception):
     """Error when encoding data from desired structure format into raw bytedata."""
 
 
+class DataValidationError(Exception):
+    "Data validation error"
+
+
 class DataProcessingError(Exception):
     """Data preparation/processing error."""
 
