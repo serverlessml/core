@@ -7,21 +7,24 @@ rebuild: build push
 
 .PHONY: build run push \
 	run-gcp run-gcp-local \
-	run-aws run-aws-local
+	run-aws run-aws-local \
+	lint coverage-bump license-check rm
 
 
 REGISTRY := slessml
 VER := `cat ./src/VERSION`
 PLATFORM := gcp
 PY_VER := 3.8
-SERVICE := core-$(PLATFORM)-py$(PY_VER)
 BG := -d --name=core-$(PLATFORM)
+DEMO_SUFF := ""
+SERVICE := core-$(PLATFORM)-py$(PY_VER)$(DEMO_SUFF)
 
 build:
 	@docker build \
 		-t ${REGISTRY}/${SERVICE}:${VER} \
 		--build-arg PY_VER=$(PY_VER) \
-		-f ./Dockerfile.$(PLATFORM) .
+		--build-arg VER=$(VER) \
+		-f ./Dockerfile.$(PLATFORM)$(DEMO_SUFF) .
 
 push:
 	@docker push ${REGISTRY}/${SERVICE}:${VER}
@@ -29,7 +32,7 @@ push:
 run-gcp-local:
 	@docker run $(BG) \
 		-p 8080:8080 \
-		-v /tmp:/tmp \
+		-v ${PWD}/e2e_test:/tmp \
 		-e ML_RUN_LOCALLY=Y \
 		-t ${REGISTRY}/${SERVICE}:${VER}
 
@@ -45,7 +48,7 @@ run-gcp:
 run-aws-local:
 	@docker run $(BG) \
 		-p 8080:8080 \
-		-v /tmp:/tmp \
+		-v ${PWD}/e2e_test:/tmp \
 		-e ML_RUN_LOCALLY=Y \
 		--entrypoint python \
 		-t ${REGISTRY}/${SERVICE}:${VER} \
@@ -59,6 +62,7 @@ run-aws:
 		-e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
 		-e ML_RUN_LOCALLY=N \
 		-t ${REGISTRY}/${SERVICE}:${VER}
+
 
 rm:
 	@docker rm -f core-$(PLATFORM)

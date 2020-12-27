@@ -18,7 +18,8 @@
 # limitations under the License.
 
 ARG PY_VER
-FROM slessml/core-aws-py${PY_VER}:latest  AS base
+ARG VER
+FROM slessml/core-aws-py${PY_VER}:${VER}  AS base
 
 LABEL maintener="Dmitry Kisler"
 LABEL email="admin@dkisler.com"
@@ -26,7 +27,7 @@ LABEL web="www.serverlessml.org"
 
 WORKDIR /
 
-COPY ./model model
+COPY demo model
 
 RUN pip install ./model --no-cache-dir \
     && rm -rf /model \
