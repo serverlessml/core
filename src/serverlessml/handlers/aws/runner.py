@@ -27,7 +27,7 @@ from functools import partial
 from typing import Any, Dict
 
 from serverlessml.controllers import ControllerIO, get_logger
-from serverlessml.errors import ModelDefinitionError, PipelineConfigError, PipelineRunningError
+from serverlessml.errors import PipelineConfigError, PipelineRunningError
 from serverlessml.pipeline import Runner
 
 
@@ -64,7 +64,7 @@ def run(event: Dict[str, Any], context: Any) -> None:  # pylint: disable=unused-
                 }
             )
             sys.exit(1)
-    except (ModelDefinitionError, PipelineConfigError, PipelineRunningError) as ex:
+    except (PipelineConfigError, PipelineRunningError) as ex:
         log.error(
             {
                 "error": ex,

@@ -40,32 +40,8 @@ class DataEncodingError(Exception):
     """Error when encoding data from desired structure format into raw bytedata."""
 
 
-class DataValidationError(Exception):
-    "Data validation error"
-
-
 class DataProcessingError(Exception):
-    """Data preparation/processing error."""
-
-
-class ModelDefinitionError(Exception):
-    """Model instantiation error."""
-
-
-class ModelDeserializationError(Exception):
-    """Model deserialization/loading error."""
-
-
-class ModelSerializationError(Exception):
-    """Model serialization/saving error."""
-
-
-class ModelTrainError(Exception):
-    """Model training error."""
-
-
-class ModelPredictionError(Exception):
-    """Model prediction error."""
+    """Error of data processing."""
 
 
 class PipelineRunningError(Exception):

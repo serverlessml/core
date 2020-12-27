@@ -28,12 +28,7 @@ from types import ModuleType
 from typing import Any, Callable, Dict, Optional
 
 from serverlessml.controllers import ControllerIO, Validator
-from serverlessml.errors import (
-    DataProcessingError,
-    InitError,
-    ModelDefinitionError,
-    PipelineRunningError,
-)
+from serverlessml.errors import DataProcessingError, InitError, PipelineRunningError
 
 
 class Runner:
@@ -92,13 +87,13 @@ class Runner:
             Module with the user defined pipelines definitions.
 
         Raises:
-            ModelDefinitionError: When underlying model's class failed to be instantiated.
+            InitError: When underlying model's class failed to be instantiated.
         """
         try:
             model_package_name = ".".join(model_version.split(".")[:-1])
             udm = importlib.import_module(f"{model_version}.pipeline", model_package_name)
         except Exception as ex:
-            self._error(f"Failed loading the model code: {ex}", ModelDefinitionError)
+            self._error(f"Failed loading the model code: {ex}", InitError)
         return udm
 
     def train(self, config: Dict[str, Any]) -> None:
@@ -111,7 +106,6 @@ class Runner:
             PipelineConfigError: When config failed validation.
             PipelineRunningError: When pipeline failed.
             DataProcessingError: When data processing with the user-defined failed.
-            ModelDefinitionError: When underlying model's class failed to be instantiated.
         """
         self._logger.debug("Running train pipeline.")
 

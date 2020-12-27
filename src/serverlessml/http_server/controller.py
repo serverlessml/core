@@ -28,7 +28,7 @@ from sanic.request import Request  # type: ignore
 from sanic.response import HTTPResponse, empty  # type: ignore
 
 from serverlessml.controllers import get_logger
-from serverlessml.errors import ModelDefinitionError, PipelineConfigError, PipelineRunningError
+from serverlessml.errors import PipelineConfigError, PipelineRunningError
 from serverlessml.pipeline import Runner
 
 
@@ -79,7 +79,7 @@ class Endpoints:
                 {"error": str(ex), "run_id": payload.get("run_id"), "payload": payload}
             )
             return empty(422)
-        except (PipelineRunningError, ModelDefinitionError) as ex:
+        except Exception as ex:
             self._logger.error(
                 {"error": str(ex), "run_id": payload.get("run_id"), "payload": payload}
             )
@@ -100,7 +100,7 @@ class Endpoints:
                 {"error": str(ex), "run_id": payload.get("run_id"), "payload": payload}
             )
             return empty(422)
-        except (PipelineRunningError, ModelDefinitionError) as ex:
+        except PipelineRunningError as ex:
             self._logger.error(
                 {"error": str(ex), "run_id": payload.get("run_id"), "payload": payload}
             )
