@@ -91,7 +91,7 @@ class Runner:
         """
         try:
             model_package_name = ".".join(model_version.split(".")[:-1])
-            udm = importlib.import_module(f"{model_version}.pipeline", model_package_name)
+            udm = importlib.import_module(model_version, model_package_name)
         except Exception as ex:
             self._error(f"Failed loading the model code: {ex}", InitError)
         return udm
