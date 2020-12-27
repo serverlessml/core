@@ -104,7 +104,7 @@ class Model(ABC):
             Config in case it's valid.
 
         Raises:
-            ModelConfigError: When underlying model definition method raises exception.
+            ModelConfigError: When model config fails validation.
         """
         self._logger.debug("Validate model's config with %s", str(self))
         try:

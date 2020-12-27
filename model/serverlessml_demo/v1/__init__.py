@@ -18,3 +18,11 @@
 # limitations under the License.
 
 """``serverlessml_demo.v1`` contains v1 of the demo model."""
+
+from contextlib import suppress
+
+with suppress(ImportError):
+    from .data import DataPreparation
+    from .model import Model
+
+__all__ = ["DataPreparation", "Model"]

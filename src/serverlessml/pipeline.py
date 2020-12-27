@@ -130,7 +130,7 @@ class Runner:
         elapsed_start = time.time()
         try:
             path_data_source: str = data_cfg.get("location", {}).get("source", "")
-            dataset = self.controller_io.load.data(path_data_source)
+            dataset: Any = self.controller_io.load.data(path_data_source)
         except Exception as ex:
             self._error(f"Failed to load data: {ex}")
         output_metrics["elapsed"]["data_read"] = time.time() - elapsed_start
@@ -203,14 +203,16 @@ class Runner:
 
         elapsed_start = time.time()
         try:
-            dataset_in = self.controller_io.load.data(path_data_source)
+            dataset_in: Any = self.controller_io.load.data(path_data_source)
         except Exception as ex:
             self._error(f"Failed to load data: {ex}")
         output_metrics["elapsed"]["data_prep"] = time.time() - elapsed_start
 
         elapsed_start = time.time()
         try:
-            dataset_out = model_module.Model(model_obj=model).predict(dataset_in)  # type: ignore
+            dataset_out: Any = model_module.Model(model_obj=model).predict(  # type: ignore
+                dataset_in
+            )
         except Exception as ex:
             self._error(f"Failed while running prediction: {ex}")
         output_metrics["elapsed"]["prediction"] = time.time() - elapsed_start

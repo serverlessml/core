@@ -17,12 +17,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""``model.v1`` defines the v1 of the ``Model`` class."""
+"""The module defines the v1 of the ``Model`` class."""
 
 import pickle
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 from numpy.random import randint, seed
+from pandas import DataFrame, Series
 from serverlessml_demo.template.model import Model as ModelTemplate
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.neighbors import KNeighborsClassifier
@@ -31,19 +32,19 @@ from sklearn.neighbors import KNeighborsClassifier
 class Model(ModelTemplate):
     def schema(self) -> Dict[str, Any]:
         return {
-            "$schema": "http://json-schema.org/draft-07/schema",
+            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "required": ["n_neighbors"],
             "properties": {
                 "n_neighbors": {
                     "type": "integer",
                     "default": 5,
-                    "minimum": 0,
+                    "exclusiveMinimum": 0,
                 },
                 "weights": {
                     "type": "string",
                     "default": "uniform",
-                    "examples": ["uniform", "distance"],
+                    "enum": ["uniform", "distance"],
                 },
                 "algorithm": {
                     "type": "string",
@@ -53,7 +54,12 @@ class Model(ModelTemplate):
                 "leaf_size": {
                     "type": "integer",
                     "default": 10,
-                    "minimum": 0,
+                    "exclusiveMinimum": 0,
+                },
+                "seed": {
+                    "type": "integer",
+                    "default": 2020,
+                    "exclusiveMinimum": 0,
                 },
             },
             "additionalProperties": True,
@@ -61,18 +67,21 @@ class Model(ModelTemplate):
 
     def _model_definition(self, config: Dict[str, Any]) -> "Model":
         seed(config.get("seed", randint(1, 10000, 1)))
+        if config.get("seed"):
+            config.pop("seed")
+
         return KNeighborsClassifier(n_jobs=-1, **config)
 
-    def _fit(self, data: Any, target: Any) -> None:
+    def _fit(self, data: Tuple[DataFrame], target: Tuple[Series]) -> None:
         self.model.fit(data, target)
 
-    def _evaluate(self, y_true: Any, y_pred: Any) -> Dict[str, Any]:
+    def _evaluate(self, y_true: Series, y_pred: Series) -> Dict[str, Any]:
         return {
             "accuracy": accuracy_score(y_true, y_pred),
             "f1_score": f1_score(y_true, y_pred, average="macro"),
         }
 
-    def _predict(self, X: Any) -> Any:
+    def _predict(self, X: DataFrame) -> Any:
         return self.model.predict(X)
 
     def _save(self) -> bytes:
