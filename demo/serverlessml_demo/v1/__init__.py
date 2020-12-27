@@ -17,4 +17,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""``serverlessml_demo`` is the package with the model demo logic."""
+"""``serverlessml_demo.v1`` contains v1 of the demo model."""
+
+from contextlib import suppress
+
+__all__ = ["DataPreparation", "Model"]
+
+with suppress(ImportError):
+    from .data import DataPreparation
+    from .model import Model

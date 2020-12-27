@@ -39,7 +39,7 @@ repos:
         name: "Black"
         language: system
         pass_filenames: false
-        entry: black src model main.py.gcp main.py.aws
+        entry: black src demo main.py.gcp main.py.aws
         args: [--safe, --quiet, "--line-length=100", "--skip-string-normalization"]
       - id: legal
         name: "Licence check"

@@ -30,7 +30,7 @@ REQUIREMENTS.extend(REQUIREMENTS_USER_DEFINED)
 
 
 def do_setup():
-    """Performs ServerlessML setup."""
+    """Performs ServerlessML Demo Model setup."""
     setup(
         name="serverlessml_demo",
         version="1.0",
@@ -44,7 +44,7 @@ def do_setup():
             "Operating System :: OS Independent",
         ],
         packages=find_namespace_packages(where=".", exclude=("test",)),
-        requirements=REQUIREMENTS,
+        install_requires=REQUIREMENTS,
     )
 
 

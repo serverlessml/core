@@ -17,12 +17,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""``serverlessml_demo.v1`` contains v1 of the demo model."""
+"""``serverlessml_demo`` is the package with the model demo logic."""
 
 from contextlib import suppress
 
 with suppress(ImportError):
-    from .data import DataPreparation
-    from .model import Model
+    from . import v1
 
-__all__ = ["DataPreparation", "Model"]
+__all__ = ["v1"]
