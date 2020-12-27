@@ -17,4 +17,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""``model`` is the package with the model logic."""
+ARG PY_VER
+FROM slessml/core-aws-py${PY_VER}:latest  AS base
+
+LABEL maintener="Dmitry Kisler"
+LABEL email="admin@dkisler.com"
+LABEL web="www.serverlessml.org"
+
+WORKDIR /
+
+COPY ./model model
+
+RUN pip install ./model --no-cache-dir \
+    && rm -rf /model \
+        /tmp/* \
+        /var/tmp/* \
+        /usr/share/man \
+        /usr/share/doc \
+        /usr/share/doc-base
+
+ENTRYPOINT [ "python", "main.py" ]

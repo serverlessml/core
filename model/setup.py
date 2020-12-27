@@ -24,25 +24,27 @@ from pathlib import Path
 from setuptools import find_namespace_packages, setup  # type: ignore
 
 DIR = Path(__file__).parent
-REQUIREMENTS = (DIR / "requirements.txt").read_text().split("\n")[:-1]
+REQUIREMENTS = ["fastjsonschema==2.14.5"]
+REQUIREMENTS_USER_DEFINED = (DIR / "requirements.txt").read_text().split("\n")[:-1]
+REQUIREMENTS.extend(REQUIREMENTS_USER_DEFINED)
 
 
 def do_setup():
     """Performs ServerlessML setup."""
     setup(
-        name="{{model_pkg}}",
+        name="serverlessml_demo",
         version="1.0",
         description="ServerlessML Model package.",
         url="https://www.serverless.org",
-        license="{{license}}",
+        license="Apache 2.0 License",
         classifiers=[
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
-            "License :: OSI Approved :: {{license}}",
+            "License :: OSI Approved :: Apache 2.0 License",
             "Operating System :: OS Independent",
         ],
         packages=find_namespace_packages(where=".", exclude=("test",)),
-        extras_require=REQUIREMENTS,
+        requirements=REQUIREMENTS,
     )
 
 

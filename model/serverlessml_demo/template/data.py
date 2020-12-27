@@ -23,7 +23,13 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Tuple
 
-from serverlessml.errors import DataProcessingError, DataValidationError
+
+class DataValidationError(Exception):
+    "Data validation error"
+
+
+class DataProcessingError(Exception):
+    """Data preparation/processing error."""
 
 
 class DataPreparation(ABC):
