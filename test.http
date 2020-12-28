@@ -1,24 +1,49 @@
 GET http://0.0.0.0:8080/status
 
 ###
+
 POST http://0.0.0.0:8080/train
 Accept: "application/json"
 
 {
-  "project_id": "0cba82ff-9790-454d-b7b9-22570e7ba28c",
-  "code_hash": "8c2f3d3c5dd853231c7429b099347d13c8bb2c37",
-  "run_id": "c77d0a32-2b29-47f6-9ac5-67a21f7953b9",
-  "pipeline_config":
-    {
-      "data": {
-        "location": {
-          "source": "s3://test/train.csv"
+    "project_id": "0cba82ff-9790-454d-b7b9-22570e7ba28c",
+    "code_hash": "8c2f3d3c5dd853231c7429b099347d13c8bb2c37",
+    "run_id": "c77d0a32-2b29-47f6-9ac5-67a21f7953b9",
+    "pipeline_config": {
+        "data": {
+            "location": {
+                "source": "storage/data/input/iris.csv"
+            },
+            "prep_config": {
+                "test_size": 0.33,
+                "seed": 42
+            }
         },
-        "prep_config": {}
-      },
-      "model": {
-        "hyperparameters": {},
-        "version": "test.v1"
-      }
+        "model": {
+            "hyperparameters": {
+                "n_neighbors": 3,
+                "seed": 42
+            },
+            "version": "serverlessml_demo.v1"
+        }
+    }
+}
+
+###
+
+POST http://0.0.0.0:8080/predict
+Accept: "application/json"
+
+{
+    "project_id": "0cba82ff-9790-454d-b7b9-22570e7ba28c",
+    "run_id": "9a3a8c44-da7a-4e42-9232-2fd1af91fb3e",
+    "pipeline_config": {
+        "train_id": "c77d0a32-2b29-47f6-9ac5-67a21f7953b9",
+        "data": {
+            "location": {
+                "source": "storage/data/input/prediction_input.csv",
+                "destination": "storage/data/output/prediction_output.csv"
+            }
+        }
     }
 }

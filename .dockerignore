@@ -9,5 +9,6 @@ LICENSE
 .github
 tools
 model
+e2e_test
 .env
 test*
