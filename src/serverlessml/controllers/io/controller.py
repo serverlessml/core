@@ -128,8 +128,7 @@ class _ControllerGeneric:
 
         self.prefix = os.path.join(
             self.uri_prefix,
-            self.BUCKET,
-            project_id,
+            f"{self.BUCKET}-{self.project_id}",
         )
 
         self.prefix_per_run = os.path.join(
