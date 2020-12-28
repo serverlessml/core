@@ -1,3 +1,5 @@
+name: Build
+
 on:
   push:
     branches:
@@ -13,8 +15,6 @@ on:
       - opened
   workflow_dispatch:
 
-name: Build and push
-
 jobs:
   build-n-push:
     strategy:
@@ -24,12 +24,25 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Build base image
+        run: make build PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
+
+      - name: Build demo image
+        run: make build PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}} DEMO_SUFF=".demo"
+
+      - name: Integration test
+        run: |
+          make run-${PLF}-local DEMO_SUFF=".demo" PLATFORM=${PLF}
+          make test-e2e
+          make rm PLATFORM=${PLF}
+        env:
+          PLF: ${{matrix.platform}}
 
       - name: Auth with docker hub
         run: echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_USER}" --password-stdin
@@ -37,5 +50,7 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Rebuild image
-        run: make rebuild PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
+      - name: Push images
+        run: |
+          make push PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
+          make push-latest PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}

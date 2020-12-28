@@ -4,5 +4,5 @@
 .DS_Store
 .vscode
 .env
-e2e_test/serverlessml-pipeline/**
+e2e_test/serverlessml-*/**
 e2e_test/storage/data/output/*.csv
