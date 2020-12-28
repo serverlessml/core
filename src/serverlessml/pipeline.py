@@ -186,8 +186,9 @@ class Runner:
 
         pipeline_cfg: Dict[str, Any] = config.get("pipeline_config", {})
 
-        train_id: str = pipeline_cfg.get("train_id", "")
-        controller_io_train = self.controller_io_factory(run_id=train_id)
+        controller_io_train = self.controller_io_factory(
+            project_id=config.get("project_id", None), run_id=pipeline_cfg.get("train_id", None)
+        )
 
         pipeline_cfg_train: Dict[str, Any] = controller_io_train.load.metadata()
         model_cfg: Dict[str, Any] = pipeline_cfg_train.get("pipeline_config", {}).get("model", {})

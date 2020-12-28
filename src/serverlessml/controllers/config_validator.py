@@ -32,7 +32,10 @@ config_path = {
     "type": "string",
     "description": "Path to a data object.",
     "oneOf": [
-        {"description": "File on file system.", "pattern": "^fs://.*?$"},
+        {
+            "description": "File on file system.",
+            "pattern": "[a-zA-Z0-9_\\-.\\/]+",
+        },
         {
             "description": "Object in a GCS (GCP) bucket.",
             "pattern": "^gcs://[a-zA-Z0-9_\\-.]{3,63}/.*?$",
