@@ -200,8 +200,6 @@ def happy_path():
         test_last_status_happy(endpoint)
         test_metrics(endpoint)
 
-    os.system(f"rm -r {DIR_META}")
-
 
 def unhappy_path():
     pass
