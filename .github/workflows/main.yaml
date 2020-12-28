@@ -20,11 +20,13 @@ jobs:
     strategy:
       matrix:
         pyver: [3.8, 3.7]
-        platform: [aws] #, gcp]
+        platform: [aws, gcp]
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
       DOCKER_BUILDKIT: 1
+      ENV_PY_VER: ${{matrix.pyver}}
+      ENV_PLATFORM: ${{matrix.platform}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -32,19 +34,17 @@ jobs:
           fetch-depth: 0
 
       - name: Build base image
-        run: make build PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
+        run: make build PY_VER=${ENV_PY_VER} PLATFORM=${ENV_PLATFORM}
 
       - name: Build demo image
-        run: make build PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}} DEMO_SUFF=".demo"
+        run: make build PY_VER=${ENV_PY_VER} PLATFORM=${ENV_PLATFORM} DEMO_SUFF=".demo"
 
       - name: Integration test
         run: |
-          make run-${PLF}-local PY_VER=${{matrix.pyver}} PLATFORM=${PLF} DEMO_SUFF=".demo"
+          make run-${ENV_PLATFORM}-local PY_VER=${ENV_PY_VER} PLATFORM=${ENV_PLATFORM} DEMO_SUFF=".demo"
           pip3 install -r requirements-test.txt
           make test-e2e
-          make rm PLATFORM=${PLF}
-        env:
-          PLF: ${{matrix.platform}}
+          make rm PLATFORM=${ENV_PLATFORM}
 
       - name: Auth with docker hub
         run: echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_USER}" --password-stdin
@@ -54,5 +54,5 @@ jobs:
 
       - name: Push images
         run: |
-          make push PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
-          make push-latest PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
+          make push PY_VER=${ENV_PY_VER} PLATFORM=${ENV_PLATFORM}
+          make push-latest PY_VER=${ENV_PY_VER} PLATFORM=${ENV_PLATFORM}
