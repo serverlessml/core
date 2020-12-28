@@ -19,22 +19,17 @@ jobs:
   build-n-push:
     strategy:
       matrix:
-        pyver: [3.8] #, 3.7]
+        pyver: [3.8, 3.7]
         platform: [aws] #, gcp]
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
-      BOCKER_BUILDKIT: 1
+      DOCKER_BUILDKIT: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - name: Debug
-        run: |
-          echo ${PWD}
-          ls -lahS
 
       - name: Build base image
         run: make build PY_VER=${{matrix.pyver}} PLATFORM=${{matrix.platform}}
