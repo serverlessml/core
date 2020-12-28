@@ -100,7 +100,7 @@ class _ControllerGeneric:
         InitError: When underlying class couldn't be instantiated.
     """
 
-    BUCKET = "serverlessml-pipeline"
+    BUCKET = "serverlessml"
     PATH_PREFIX = {
         "aws": "s3://",
         "gcp": "gs://",
