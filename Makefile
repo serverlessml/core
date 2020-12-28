@@ -80,4 +80,4 @@ lint:
 	@pre-commit run -a --hook-stage manual
 
 test-e2e:
-	@python ${PWD}/e2e_test/runner.py
+	@python3 ${PWD}/e2e_test/runner.py
