@@ -1,0 +1,3 @@
+fastjsonschema==2.14.5
+requests
+# pytest
