@@ -3,7 +3,7 @@
 
 SHELL=/bin/bash
 
-rebuild: build push
+rebuild: build push push-latest
 
 .PHONY: build run push \
 	run-gcp run-gcp-local \
@@ -28,6 +28,10 @@ build:
 
 push:
 	@docker push ${REGISTRY}/${SERVICE}:${VER}
+
+push-latest:
+	@docker tag ${REGISTRY}/${SERVICE}:${VER} ${REGISTRY}/${SERVICE}:latest
+	@docker push ${REGISTRY}/${SERVICE}:latest
 
 run-gcp-local:
 	@docker run $(BG) \
@@ -62,7 +66,6 @@ run-aws:
 		-e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
 		-e ML_RUN_LOCALLY=N \
 		-t ${REGISTRY}/${SERVICE}:${VER}
-
 
 rm:
 	@docker rm -f core-$(PLATFORM)
