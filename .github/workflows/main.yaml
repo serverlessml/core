@@ -19,8 +19,8 @@ jobs:
   build-n-push:
     strategy:
       matrix:
-        pyver: [3.7, 3.8]
-        platform: [aws, gcp]
+        pyver: [3.8] #, 3.7]
+        platform: [aws] #, gcp]
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
