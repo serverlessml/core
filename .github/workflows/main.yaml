@@ -40,6 +40,7 @@ jobs:
       - name: Integration test
         run: |
           make run-${PLF}-local PY_VER=${{matrix.pyver}} PLATFORM=${PLF} DEMO_SUFF=".demo"
+          pip3 install -r requirements-test.txt
           make test-e2e
           make rm PLATFORM=${PLF}
         env:
