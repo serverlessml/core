@@ -81,8 +81,8 @@ class Model(ModelTemplate):
             "f1_score": f1_score(y_true, y_pred, average="macro"),
         }
 
-    def _predict(self, X: DataFrame) -> Any:
-        return self.model.predict(X)
+    def _predict(self, X: DataFrame) -> DataFrame:
+        return DataFrame({"class": self.model.predict(X)})
 
     def _save(self) -> bytes:
         return pickle.dumps(self.model)
