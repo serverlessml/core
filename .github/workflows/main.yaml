@@ -38,7 +38,7 @@ jobs:
 
       - name: Integration test
         run: |
-          make run-${PLF}-local DEMO_SUFF=".demo" PLATFORM=${PLF}
+          make run-${PLF}-local PY_VER=${{matrix.pyver}} PLATFORM=${PLF} DEMO_SUFF=".demo"
           make test-e2e
           make rm PLATFORM=${PLF}
         env:
