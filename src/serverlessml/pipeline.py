@@ -154,7 +154,7 @@ class Runner:
             ).train(data, target)
         except Exception as ex:
             self._error(f"Failed while running user defined model methods: {ex}")
-        output_metrics["elapsed"]["train"] = time.time() - elapsed_start
+        output_metrics["elapsed"]["logic_execution"] = time.time() - elapsed_start
 
         output_metrics["user_defined_metrics"] = metrics
 
@@ -207,7 +207,7 @@ class Runner:
             dataset_in: Any = self.controller_io.load.data(path_data_source)
         except Exception as ex:
             self._error(f"Failed to load data: {ex}")
-        output_metrics["elapsed"]["data_prep"] = time.time() - elapsed_start
+        output_metrics["elapsed"]["data_read"] = time.time() - elapsed_start
 
         elapsed_start = time.time()
         try:
@@ -216,8 +216,11 @@ class Runner:
             )
         except Exception as ex:
             self._error(f"Failed while running prediction: {ex}")
-        output_metrics["elapsed"]["prediction"] = time.time() - elapsed_start
+        output_metrics["elapsed"]["logic_execution"] = time.time() - elapsed_start
 
+        elapsed_start = time.time()
         self.controller_io.save.data(dataset_out, path=path_data_destination)
+        output_metrics["elapsed"]["data_write"] = time.time() - elapsed_start
+
         self.controller_io.save.metrics(output_metrics)
         self.controller_io.save.status(status="SUCCESS")
