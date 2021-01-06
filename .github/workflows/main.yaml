@@ -12,11 +12,12 @@ on:
     branches:
       - master
     types:
-      - opened
+      - closed
   workflow_dispatch:
 
 jobs:
   build-n-push:
+    if: github.event.pull_request.merged == true || github.event != "pull_request"
     strategy:
       matrix:
         pyver: [3.8, 3.7]
