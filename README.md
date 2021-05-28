@@ -1,7 +1,7 @@
 # Serverless ML Core service
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python Version](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue.svg)](https://pypi.org/project/kedro/)
+[![Python Version](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue.svg)](https://github.com/serverlessml/core/)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-black.svg)](https://github.com/ambv/black)
 ![Build](https://github.com/serverlessml/core/workflows/Build/badge.svg?branch=master)
 
