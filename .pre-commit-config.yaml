@@ -10,17 +10,17 @@ repos:
       - id: check-json
       - id: debug-statements
       - id: requirements-txt-fixer
-      - id: flake8
+      # - id: flake8
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.720
-    hooks:
-      - id: mypy
-        args: [--allow-redefinition, --ignore-missing-imports]
-        exclude: |
-            (?x)(
-              ^tools/
-            )
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v0.720
+  #   hooks:
+  #     - id: mypy
+  #       args: [--allow-redefinition, --ignore-missing-imports]
+  #       exclude: |
+  #           (?x)(
+  #             ^tools/
+  #           )
   - repo: local
     hooks:
       - id: isort
